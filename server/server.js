@@ -5,17 +5,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
 const User = require('./models/user');
-const {authenticate} = require('./middleware/authenticate');
-const session = require('express-session')
+const { authenticate } = require('./middleware/authenticate');
+const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
-app.use(session({
-    secret: 'ybats',
-    resave: true,
-    saveUninitialized: false
-}));
+
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
@@ -27,33 +23,45 @@ app.get('/', (req, res) => {
     });
 });
 
-app.post('/login',authenticate,(req,res)=>{
-    res.header('userID',req.user._id).send(req.user);
-    req.session.userID = req.user._id;
+app.post('/login', (req, res) => {
+    const body = _.pick(req.body, ['username', 'password']);
+    User.findByCredentials(body.username, body.password).then(user => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+    }).catch((e) => {
+        res.status(400).send();
+    });
 });
 
-app.post('/newUser', (req, res) => {
-    const newUser = new User({
-        username: req.body.username,
-        password: req.body.password
-    });
-    newUser.save().then(user => {
-        res.send(user);
-    }, e => {
+app.post('/register', (req, res) => {
+    const body = _.pick(req.body, ['username', 'password']);
+    var user = new User(body);
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((e) => {
         res.status(400).send(e);
     });
 });
 
-app.get('/logout', function(req, res, next) {
-    if (req.session) {
-      req.session.destroy(function(err) {
-        if(err) {
-          return next(err);
-        } else {
-          return res.redirect('/');
-        }
-      });
-    }
-  });
+app.get('/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+app.delete('/logout', authenticate, (req, res, next) => {
+    req.user.removeToken(req.token).then(() => {
+        res.status(200).send();
+    }, () => {
+        res.status(400).send();
+    });
+});
+
+app.get('/needsAuth', authenticate, (req, res,next) => {
+    res.send({
+        message: `Welcome!.This page requires authentication!`
+    });
+});
 
 module.exports = app;

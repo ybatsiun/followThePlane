@@ -12,7 +12,8 @@
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "express-session": "^1.15.6",
+    "jsonwebtoken": "^8.2.0",
+    "lodash": "^4.17.5",
     "mongoose": "^5.0.10"
   }
 }

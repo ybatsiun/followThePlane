@@ -1,6 +1,13 @@
 
 var config = require('./config.json');
-var envConfig = config['development'];
-Object.keys(envConfig).forEach((key) => {
-    process.env[key] = envConfig[key];
-});
+var env = (process.env.NODE_ENV || 'development').trim();
+if (env == 'development') {
+    Object.keys(config.development).forEach((key) => {
+        process.env[key] = config.development[key];
+    });
+} else if (env == 'test') {
+    console.log('setting test config...')
+    Object.keys(config.test).forEach((key) => {
+        process.env[key] = config.test[key];
+    });
+}

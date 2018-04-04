@@ -1,4 +1,4 @@
-
+"use strict"
 require('./config/config');
 
 const express = require('express');
@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
 const User = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
+const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
@@ -58,10 +59,18 @@ app.delete('/logout', authenticate, (req, res, next) => {
     });
 });
 
-app.get('/needsAuth', authenticate, (req, res,next) => {
+app.get('/needsAuth', authenticate, (req, res, next) => {
     res.send({
         message: `Welcome!.This page requires authentication!`
     });
+});
+app.get('/icaoList', getAllStates, (req, res, next) => {
+    const parsedData = res.data.states;
+    const icaoNumbersList = parsedData.reduce((accumulator, currentVal) => {
+        accumulator.push(currentVal[0]);
+        return accumulator;
+    }, []);
+    res.send(icaoNumbersList);
 });
 
 module.exports = app;

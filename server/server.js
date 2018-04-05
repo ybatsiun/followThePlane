@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
-
+app.use('/authenticated',authenticate);
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
@@ -47,11 +47,11 @@ app.post('/register', (req, res) => {
     });
 });
 
-app.get('/me', authenticate, (req, res) => {
+app.get('/authenticated/me',  (req, res) => {
     res.send(req.user);
 });
 
-app.delete('/logout', authenticate, (req, res, next) => {
+app.delete('/authenticated/logout',  (req, res, next) => {
     req.user.removeToken(req.token).then(() => {
         res.status(200).send();
     }, () => {
@@ -59,12 +59,12 @@ app.delete('/logout', authenticate, (req, res, next) => {
     });
 });
 
-app.get('/needsAuth', authenticate, (req, res, next) => {
+app.get('/authenticated/needsAuth', (req, res, next) => {
     res.send({
         message: `Welcome!.This page requires authentication!`
     });
 });
-app.get('/icaoList', getAllStates, (req, res, next) => {
+app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     const parsedData = res.data.states;
     const icaoNumbersList = parsedData.reduce((accumulator, currentVal) => {
         accumulator.push(currentVal[0]);

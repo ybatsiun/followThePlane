@@ -33,7 +33,7 @@ describe('Authentication Suite', function () {
     it('Logout with user', (done) => {
         User.find({username: newUser.username}).then(dbUser=>{
             request(app)
-            .delete('/logout')
+            .delete('/authenticated/logout')
             .set('x-auth', dbUser[0].tokens[0].token)
             .expect(200)
             .end((err,res)=>{

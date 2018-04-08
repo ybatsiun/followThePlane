@@ -7,12 +7,13 @@ const mongoose = require('./db/mongoose');
 const User = require('./models/user');
 const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
+const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
 const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
 
 app.use(bodyParser.json());
-app.use('/authenticated',authenticate);
+app.use('/authenticated', authenticate);
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
@@ -47,11 +48,11 @@ app.post('/register', (req, res) => {
     });
 });
 
-app.get('/authenticated/me',  (req, res) => {
+app.get('/authenticated/me', (req, res) => {
     res.send(req.user);
 });
 
-app.delete('/authenticated/logout',  (req, res, next) => {
+app.delete('/authenticated/logout', (req, res, next) => {
     req.user.removeToken(req.token).then(() => {
         res.status(200).send();
     }, () => {
@@ -72,8 +73,11 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-app.get('/authenticated/:icao',(req,res,next)=>{
-    
-})
+app.get('/authenticated/getState/:icao', getStateByIcao, (req, res, next) => {
+    const parsedData = res.data.states;
+    res.send({
+        state: parsedData
+    });
+});
 
 module.exports = app;

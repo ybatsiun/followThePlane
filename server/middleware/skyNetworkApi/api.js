@@ -5,7 +5,7 @@ const baseUrl = 'https://opensky-network.org/api';
 const getAll = '/states/all';
 
 function getAllStates(req, globalResp, next) {
-  /*req.info =*/ https.get(`${baseUrl}${getAll}`, res => {
+  https.get(`${baseUrl}${getAll}`, res => {
 
     const { statusCode } = res;
     const contentType = res.headers['content-type'];
@@ -45,4 +45,7 @@ function getAllStates(req, globalResp, next) {
 
 };
 
-module.exports = { getAllStates }
+const getStateByIcao = icao => {
+
+}
+module.exports = { getAllStates, getStateByIcao }

@@ -72,5 +72,8 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
+app.get('/authenticated/:icao',(req,res,next)=>{
+    
+})
 
 module.exports = app;

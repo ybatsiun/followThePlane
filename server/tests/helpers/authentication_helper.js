@@ -10,7 +10,7 @@ module.exports = {
     registerUser() {
         const newUser = {
             username: Math.random().toString(),
-            password: 'qwerty'
+            password: 'qwerty',
         };
 
         return new Promise((resolve, reject) => {

@@ -78,15 +78,28 @@ app.get('/authenticated/getState/:icao', getStateByIcao, (req, res, next) => {
     res.send({
         state: parsedData
     });
-}); 
-app.post('/authenticated/addState/:icao',(req,res,next)=>{
+});
+app.post('/authenticated/addState/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);
-    user.addIcaoNumber(icao).then(()=>{
-        res.send({message:`${icao} was successfully added to your profile.`});
-    }).catch(e=>{
+    user.addIcaoNumber(icao).then(() => {
+        res.send({ message: `${icao} was successfully added to your profile.` });
+    }).catch(e => {
         res.status(400).send(e);
     });
-})
+});
+app.get('/authenticated/getMyIcaoList', (req, res, next) => {
+    User.getIcaoList(req.user.username).then((icaoList) => {
+        const icaoList_formatted = [];
+        debugger
+        for (const plainObj of icaoList.planes) {
+            debugger
+            icaoList_formatted.push(plainObj.icao);
+        }
+        res.send({ message: `Here is your Icao list ${icaoList_formatted}` });
+    }).catch(e => {
+        res.status(400).send(e);
+    });
+});
 
 module.exports = app;

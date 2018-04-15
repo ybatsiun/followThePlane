@@ -102,9 +102,13 @@ UserSchema.methods.removeToken = function (token) {
 
 UserSchema.methods.addIcaoNumber = function (icaoNumber) {
   const user = this;
-  user.planes.push({icao:icaoNumber});
+  user.planes.push({ icao: icaoNumber });
   return user.save();
 }
+
+UserSchema.statics.getIcaoList = function (username) {
+  const User = this;
+  return User.findOne({ username },'planes')};
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

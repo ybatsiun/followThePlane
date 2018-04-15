@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const plainSchema = new mongoose.Schema({
+const Plain = new mongoose.Schema({
     icao: String
 });
 
-module.exports = plainSchema;
+module.exports = Plain;

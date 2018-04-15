@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const plainSchema = require('./plain.js');
+const Plain = require('./plain.js');
 var UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -13,7 +13,7 @@ var UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  planes: [plainSchema],
+  planes: [Plain],
   tokens: [{
     access: {
       type: String,
@@ -99,6 +99,12 @@ UserSchema.methods.removeToken = function (token) {
     }
   });
 };
+
+UserSchema.methods.addIcaoNumber = function (icaoNumber) {
+  const user = this;
+  user.planes.push({icao:icaoNumber});
+  return user.save();
+}
 
 const User = mongoose.model('User', UserSchema);
 module.exports = User;

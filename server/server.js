@@ -78,6 +78,15 @@ app.get('/authenticated/getState/:icao', getStateByIcao, (req, res, next) => {
     res.send({
         state: parsedData
     });
-});
+}); 
+app.post('/authenticated/addState/:icao',(req,res,next)=>{
+    const icao = req.params.icao;
+    var user = new User(req.user);
+    user.addIcaoNumber(icao).then(()=>{
+        res.send({message:`${icao} was successfully added to your profile.`});
+    }).catch(e=>{
+        res.status(400).send(e);
+    });
+})
 
 module.exports = app;

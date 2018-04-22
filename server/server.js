@@ -5,6 +5,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
 const User = require('./models/user');
+const PlaneStates = require('./models/planeStates');
 const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
@@ -82,8 +83,13 @@ app.get('/authenticated/getState/:icao', getStateByIcao, (req, res, next) => {
 app.post('/authenticated/addState/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);
-    user.addIcaoNumber(icao).then(() => {
+
+    user.addIcaoNumber(icao).then((icaoDocumentID) => {
         res.send({ message: `${icao} was successfully added to your profile.` });
+        var plainStates = new PlaneStates({planeID:icaoDocumentID});
+        plainStates.save().catch(e => {
+            res.status(400).send(e);
+        });
     }).catch(e => {
         res.status(400).send(e);
     });
@@ -91,9 +97,7 @@ app.post('/authenticated/addState/:icao', (req, res, next) => {
 app.get('/authenticated/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then((icaoList) => {
         const icaoList_formatted = [];
-        debugger
         for (const plainObj of icaoList.planes) {
-            debugger
             icaoList_formatted.push(plainObj.icao);
         }
         res.send({ message: `Here is your Icao list ${icaoList_formatted}` });

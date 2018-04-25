@@ -3,6 +3,8 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Plain = require('./plain.js');
+const { ObjectID } = require('mongodb');
+
 var UserSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -26,7 +28,6 @@ var UserSchema = new mongoose.Schema({
   }]
 });
 
-//hasing password
 UserSchema.pre('save', function (next) {
   var user = this;
   if (user.isModified('password')) {
@@ -106,11 +107,28 @@ UserSchema.methods.addIcaoNumber = function (icaoNumber) {
   return user.save().then(() => {
     return user.planes.slice(-1)[0]._id.toHexString();
   });
-}
+};
+
+UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
+  const userPlanesList = await this.find(
+    {
+      planes:
+        {
+          $elemMatch:
+            { _id: ObjectID(planeID) }
+        }
+    },
+    { planes: 1 });
+  for (const plane of userPlanesList[0].planes) {
+    if (plane._id == planeID) {
+      return plane.icao;
+    }
+  }
+};
 
 UserSchema.statics.getIcaoList = function (username) {
   const User = this;
-  return User.findOne({ username }, 'planes')
+  return User.findOne({ username })
 };
 
 const User = mongoose.model('User', UserSchema);

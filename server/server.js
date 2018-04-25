@@ -4,6 +4,7 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
+const http = require('http');
 const User = require('./models/user');
 const PlaneStates = require('./models/planeStates');
 const { authenticate } = require('./middleware/authenticate');
@@ -74,19 +75,19 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-app.get('/authenticated/getState/:icao', getStateByIcao, (req, res, next) => {
+app.get('/getState/:icao', getStateByIcao, (req, res, next) => {
     const parsedData = res.data.states;
     res.send({
         state: parsedData
     });
 });
-app.post('/authenticated/addState/:icao', (req, res, next) => {
+app.post('/authenticated/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);
 
     user.addIcaoNumber(icao).then((icaoDocumentID) => {
         res.send({ message: `${icao} was successfully added to your profile.` });
-        var plainStates = new PlaneStates({planeID:icaoDocumentID});
+        const plainStates = new PlaneStates({ planeID: icaoDocumentID });
         plainStates.save().catch(e => {
             res.status(400).send(e);
         });
@@ -104,6 +105,31 @@ app.get('/authenticated/getMyIcaoList', (req, res, next) => {
     }).catch(e => {
         res.status(400).send(e);
     });
+});
+app.get('/getPlanesStates', async (req, res, next) => {
+    const planeStateList = await PlaneStates.getAllIds();
+
+    for (const planeState of planeStateList) {
+        const icao = await User.getIcaoByPlaneID(planeState.planeID);
+        const url = `http://${req.get('host')}/getState/${icao}`;
+        http.get(url, res => {
+            res.setEncoding('utf8');
+            let rawData = '';
+            let planeStatesData;
+            res.on('data', chunk => { rawData += chunk; });
+            res.on('end', async () => {
+                try {
+                    planeStatesData = JSON.parse(rawData);
+                    await PlaneStates.writeDataByPlaneId(planeState.planeID, planeStatesData.state[0]);
+                } catch (e) {
+                    console.error(e.message);
+                    res.status(400).send(e);
+                }
+            });
+        });
+    };
+    //promisify every iteration => map => and promise .all => send 200
+    res.status(200).send();
 });
 
 module.exports = app;

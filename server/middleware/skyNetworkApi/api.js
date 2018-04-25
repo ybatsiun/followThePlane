@@ -13,11 +13,9 @@ function getAllStates(req, globalResp, next) {
 };
 
 function getStateByIcao(req, globalResp, next) {
-  //debugger
   const icao = req.params.icao;
 
   https.get(`${baseUrl}${getAll}?icao24=${icao}`, res => {
-    //debugger
     validateResponse(res);
     moveDataToGlobalResponse(res, globalResp, next);
   }).on('error', (e) => {

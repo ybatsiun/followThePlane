@@ -10,7 +10,9 @@ const PlaneStates = require('./models/planeStates');
 const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
+const dateFormat = require('dateformat');
 const _ = require('lodash');
+const os = require('os');
 const app = express();
 const port = process.env.PORT;
 
@@ -20,6 +22,10 @@ app.use('/authenticated', authenticate);
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
+setInterval(() => {
+    const url = `http://localhost:3000/getPlanesStates`;
+    http.get(url);
+}, 60 * 1000);
 
 app.get('/', (req, res) => {
     res.send({
@@ -106,12 +112,13 @@ app.get('/authenticated/getMyIcaoList', (req, res, next) => {
         res.status(400).send(e);
     });
 });
+
 app.get('/getPlanesStates', async (req, res, next) => {
     const planeStateList = await PlaneStates.getAllIds();
 
     for (const planeState of planeStateList) {
         const icao = await User.getIcaoByPlaneID(planeState.planeID);
-        const url = `http://${req.get('host')}/getState/${icao}`;
+        const url = `http://localhost:3000/getState/${icao}`;
         http.get(url, res => {
             res.setEncoding('utf8');
             let rawData = '';
@@ -120,6 +127,7 @@ app.get('/getPlanesStates', async (req, res, next) => {
             res.on('end', async () => {
                 try {
                     planeStatesData = JSON.parse(rawData);
+                    console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
                     await PlaneStates.writeDataByPlaneId(planeState.planeID, planeStatesData.state[0]);
                 } catch (e) {
                     console.error(e.message);

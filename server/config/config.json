@@ -1,10 +1,10 @@
 {
     "development": {
         "PORT": 3000,
-        "MONGODB_URI": "mongodb://localhost:27017/FollowThePlain_dev"
+        "MONGODB_URI": "mongodb://localhost:27017/FollowThePlane_dev"
     },
     "test": {
         "PORT": 3000,
-        "MONGODB_URI": "mongodb://localhost:27017/FollowThePlain_test"
+        "MONGODB_URI": "mongodb://localhost:27017/FollowThePlane_test"
     }
 }

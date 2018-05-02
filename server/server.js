@@ -90,11 +90,11 @@ app.get('/getState/:icao', getStateByIcao, (req, res, next) => {
 app.post('/authenticated/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);
-
-    user.addIcaoNumber(icao).then((icaoDocumentID) => {
-        res.send({ message: `${icao} was successfully added to your profile.` });
-        const plainStates = new PlaneStates({ planeID: icaoDocumentID });
-        plainStates.save().catch(e => {
+    user.addIcaoNumber(icao).then(icaoDocumentID => {
+        const planeStates = new PlaneStates({ planeID: icaoDocumentID });
+        planeStates.save().then(() => {
+            res.send({ message: `${icao} was successfully added to your profile.` });
+        }).catch(e => {
             res.status(400).send(e);
         });
     }).catch(e => {
@@ -104,8 +104,8 @@ app.post('/authenticated/addIcao/:icao', (req, res, next) => {
 app.get('/authenticated/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then((icaoList) => {
         const icaoList_formatted = [];
-        for (const plainObj of icaoList.planes) {
-            icaoList_formatted.push(plainObj.icao);
+        for (const planeObj of icaoList.planes) {
+            icaoList_formatted.push(planeObj.icao);
         }
         res.send({ message: `Here is your Icao list ${icaoList_formatted}` });
     }).catch(e => {

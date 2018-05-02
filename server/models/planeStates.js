@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
 
-const PlaneStatesSchema = new mongoose.Schema({
+const planeStatesSchema = new mongoose.Schema({
     planeID: String,
     planeData: []
 });
-PlaneStatesSchema.statics.getAllIds = function () {
+planeStatesSchema.statics.getAllIds = function () {
     return this.find({}, { planeID: 1 });
 
 }
-PlaneStatesSchema.statics.findByPlainId = function (planeId) {
+planeStatesSchema.statics.findByPlaneId = function (planeId) {
     return this.findOne({ planeID: planeId }).then(plane => {
         return plane;
     });
 }
 
-PlaneStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
+planeStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
     const dafaultNames = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
         'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
         'spi', 'position_source'];
@@ -29,5 +29,5 @@ PlaneStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
     )
 }
 
-const PlaneStates = mongoose.model('PlaneStates', PlaneStatesSchema);
-module.exports = PlaneStates;
+const planeStates = mongoose.model('planeStates', planeStatesSchema);
+module.exports = planeStates;

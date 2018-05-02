@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Plain = require('./plain.js');
+const Plane = require('./plane.js');
 const { ObjectID } = require('mongodb');
 
 var UserSchema = new mongoose.Schema({
@@ -15,7 +15,7 @@ var UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  planes: [Plain],
+  planes: [Plane],
   tokens: [{
     access: {
       type: String,

@@ -128,7 +128,13 @@ UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
 
 UserSchema.statics.getIcaoList = function (username) {
   const User = this;
-  return User.findOne({ username })
+  return User.findOne({ username }).then(user => {
+    const icaoList_formatted = [];
+    for (const planeObj of user.planes) {
+      icaoList_formatted.push(planeObj);
+    };
+    return icaoList_formatted;
+  })
 };
 
 const User = mongoose.model('User', UserSchema);

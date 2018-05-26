@@ -10,6 +10,7 @@ const PlaneStates = require('./models/planeStates');
 const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
+const skyNetwork_helper = require('./helpers/skyNetwork_helper');
 const dateFormat = require('dateformat');
 const _ = require('lodash');
 const os = require('os');
@@ -23,9 +24,8 @@ app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
 setInterval(() => {
-    const url = `http://localhost:3000/getPlanesStates`;
-    http.get(url);
-}, 60 * 1000);
+    getPlanesStates();
+}, 1000);
 
 app.get('/', (req, res) => {
     res.send({
@@ -102,42 +102,38 @@ app.post('/authenticated/addIcao/:icao', (req, res, next) => {
     });
 });
 app.get('/authenticated/getMyIcaoList', (req, res, next) => {
-    User.getIcaoList(req.user.username).then((icaoList) => {
-        const icaoList_formatted = [];
-        for (const planeObj of icaoList.planes) {
-            icaoList_formatted.push(planeObj.icao);
-        }
-        res.send({ message: `Here is your Icao list ${icaoList_formatted}` });
+    User.getIcaoList(req.user.username).then(icaoList => {
+        const icaoListFormatted = [];
+        for (const icaoObj in icaoList) {
+            icaoListFormatted.push(icaoObj.icao);
+        };
+        res.send({ message: `Here is your Icao list ${icaoListFormatted}` });
     }).catch(e => {
         res.status(400).send(e);
     });
 });
 
-app.get('/getPlanesStates', async (req, res, next) => {
+async function getPlanesStates() {
     const planeStateList = await PlaneStates.getAllIds();
-
     for (const planeState of planeStateList) {
         const icao = await User.getIcaoByPlaneID(planeState.planeID);
-        const url = `http://localhost:3000/getState/${icao}`;
-        http.get(url, res => {
-            res.setEncoding('utf8');
-            let rawData = '';
-            let planeStatesData;
-            res.on('data', chunk => { rawData += chunk; });
-            res.on('end', async () => {
-                try {
-                    planeStatesData = JSON.parse(rawData);
-                    console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
-                    await PlaneStates.writeDataByPlaneId(planeState.planeID, planeStatesData.state[0]);
-                } catch (e) {
-                    console.error(e.message);
-                    res.status(400).send(e);
-                }
-            });
-        });
+        const states = await skyNetwork_helper.getStateByIcao('ab1644');
+        console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
+        await PlaneStates.writeDataByPlaneId(planeState.planeID, states);
     };
-    //promisify every iteration => map => and promise .all => send 200
-    res.status(200).send();
+};
+//see the current plane info from users list
+app.get('/authenticated/getCurrentPlaneState/:icao', async (req, res, next) => {
+    const icaoList = await User.getIcaoList(req.user.username);
+    const icaoId = getIcaoIdByIcao();
+    function getIcaoIdByIcao() {
+        for (const icaoObj of icaoList) {
+            if (icaoObj.icao == req.params.icao) {
+                return icaoObj._id;
+            };
+        };
+    }
 });
+
 
 module.exports = app;

@@ -1,5 +1,5 @@
-module.exports = {
-    validateResponse: (res) => {
+class HttpHelper {
+    validateResponse(res) {
         const { statusCode } = res;
         const contentType = res.headers['content-type'];
 
@@ -16,16 +16,16 @@ module.exports = {
             // consume response data to free up memory
             res.resume();
         }
-    },
-    
+    }
+
     //part of middleware 
-    moveDataToGlobalResponse: (res, globalResp, next) => {
-        return this.processResponse(res).then(processedData=>{
+    moveDataToGlobalResponse(res, globalResp, next) {
+        return this.processResponse(res).then(processedData => {
             globalResp.data = processedData;
         })
-    },
+    }
 
-    processResponse: (res) => {
+    processResponse(res) {
         res.setEncoding('utf8');
         let rawData = '';
         res.on('data', chunk => { rawData += chunk; });
@@ -40,3 +40,5 @@ module.exports = {
         });
     }
 }
+
+module.exports = HttpHelper;

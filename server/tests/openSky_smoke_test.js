@@ -8,8 +8,7 @@ const auth_helper = require('./helpers/authentication_helper.js');
 
 describe('Open sky network. Smoke', function () {
     this.timeout(10000);
-    it('register', async () => {
-    });
+    
     it('GET /authenticated/icaoList', (done) => {
         auth_helper.registerUser().then((user) => {
             request.get('http://localhost:3000/authenticated/icaoList', function (err, response, body) {

@@ -15,7 +15,6 @@ module.exports = {
             console.error(error.message);
             // consume response data to free up memory
             res.resume();
-            next();
         }
     },
     

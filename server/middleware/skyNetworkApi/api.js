@@ -7,7 +7,7 @@ function getAllStates(req, globalResp, next) {
   https.get(`${baseUrl}${getAll}`, res => {
     http_helper.validateResponse(res);
     http_helper.moveDataToGlobalResponse(res, globalResp);
-    next()
+    next();
   }).on('error', (e) => {
     console.error(`Got error: ${e.message}`);
     next();

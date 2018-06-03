@@ -23,9 +23,11 @@ app.use('/authenticated', authenticate);
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
+//background process to update plains info
+const updateInterval = 5 ; //mins
 setInterval(() => {
-    getPlanesStates();
-}, 1000);
+    getPlanesStates(); 
+},updateInterval * 60 * 1000);
 
 app.get('/', (req, res) => {
     res.send({
@@ -122,6 +124,7 @@ async function getPlanesStates() {
         await PlaneStates.writeDataByPlaneId(planeState.planeID, states);
     };
 };
+
 //see the current plane info from users list
 app.get('/authenticated/getCurrentPlaneState/:icao', async (req, res, next) => {
     const icaoList = await User.getIcaoList(req.user.username);

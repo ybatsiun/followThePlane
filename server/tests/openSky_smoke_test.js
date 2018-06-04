@@ -5,10 +5,13 @@ const { ObjectID } = require('mongodb');
 const app = require('./../server');
 const request = require('request');
 const auth_helper = require('./helpers/authentication_helper.js');
+const User = require('../models/user');
+const PlainState = require('../models/planeStates');
 
 describe('Open sky network. Smoke', function () {
     this.timeout(30000);
     let firstIcaoAvailable, user;
+
     it('GET /authenticated/icaoList', (done) => {
         auth_helper.registerUser().then(registeredUser => {
             user = registeredUser;
@@ -29,7 +32,7 @@ describe('Open sky network. Smoke', function () {
         }).catch((e) => done(e));
     });
 
-    it('Add plane to myIcaoList', (done) => {
+    it('Add plane to myIcaoList', done => {
         request({
             headers: {
                 'x-auth': user.token,
@@ -40,9 +43,15 @@ describe('Open sky network. Smoke', function () {
             if (err) {
                 done(e);
             }
-            debugger
             expect(res.statusCode).to.be(200);
-            done();
+            User.find({ username: user.username }).then(user => {
+                expect(user[0].planes.length).to.be(1);
+                const targetPlaneId = user[0].planes[0]._id.toHexString();
+                PlainState.find({ planeID: targetPlaneId }).then(plainState => {
+                    expect(plainState[0].planeData.length).to.be(0);
+                    done();
+                });
+            });
         });
     });
 });

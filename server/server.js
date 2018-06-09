@@ -11,7 +11,6 @@ const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
 const skyNetwork_helper = require('./helpers/skyNetwork_helper');
-const dateFormat = require('dateformat');
 const _ = require('lodash');
 const os = require('os');
 const app = express();
@@ -24,10 +23,10 @@ app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
 //background process to update plains info
-const updateInterval = 5 ; //mins
+const updateInterval = 5; //mins
 setInterval(() => {
-    getPlanesStates(); 
-},updateInterval * 60 * 1000);
+    skyNetwork_helper.getPlanesStates();
+}, updateInterval * 60 * 1000);
 
 app.get('/', (req, res) => {
     res.send({
@@ -115,15 +114,7 @@ app.get('/authenticated/getMyIcaoList', (req, res, next) => {
     });
 });
 
-async function getPlanesStates() {
-    const planeStateList = await PlaneStates.getAllIds();
-    for (const planeState of planeStateList) {
-        const icao = await User.getIcaoByPlaneID(planeState.planeID);
-        const states = await skyNetwork_helper.getStateByIcao('ab1644');
-        console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
-        await PlaneStates.writeDataByPlaneId(planeState.planeID, states);
-    };
-};
+;
 
 //see the current plane info from users list
 app.get('/authenticated/getCurrentPlaneState/:icao', async (req, res, next) => {

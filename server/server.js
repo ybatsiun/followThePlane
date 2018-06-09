@@ -106,23 +106,25 @@ app.post('/authenticated/addIcao/:icao', (req, res, next) => {
 app.get('/authenticated/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then(icaoList => {
         const icaoListFormatted = [];
-        for (const icaoObj in icaoList) {
+        for (const icaoObj of icaoList) {
             icaoListFormatted.push(icaoObj.icao);
         };
         res.send({ message: `Here is your Icao list ${icaoListFormatted}` });
     }).catch(e => {
-        res.status(400).send(e);
+        res.status(400).send(e.message);
     });
 });
-app.delete('/authenticated/deleteIcao/:icao', (req, res, next) => {
+app.delete('/authenticated/deleteIcao/:icao', async (req, res, next) => {
     const icaoToDelete = req.params.icao;
     var user = new User(req.user);
     const planeToDelete = user.planes.find(element => element.icao == icaoToDelete);
-    user.deleteIcaoNumber(planeToDelete.icao).then(() => {
-        res.send(`${icaoToDelete} and it's travel history was removed from your list`);
-    }).catch(e => {
-        res.status(400).send(e);
-    });
+    try {
+        await PlaneStates.deleteByPlaneId(planeToDelete._id.toHexString());
+        await user.deleteIcaoNumber(planeToDelete.icao);
+        res.send({ message: `plain with icao number ${icaoToDelete} and it's travel history was removed from your list` });
+    } catch (e) {
+        res.status(400).send(e.message);
+    };
 })
 
 //see the current plane info from users list

@@ -14,6 +14,9 @@ planeStatesSchema.statics.findByPlaneId = function (planeId) {
         return plane;
     });
 }
+planeStatesSchema.statics.deleteByPlaneId = function(planeID){
+    return this.deleteOne({planeID});
+}
 
 planeStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
     const dafaultNames = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',

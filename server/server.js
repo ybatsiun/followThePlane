@@ -33,14 +33,14 @@ app.get('/', (req, res) => {
         welcomeMessage: "Hello!"
     });
 });
-
+//TODO if handle the case when there is no such user
 app.post('/login', (req, res) => {
     const body = _.pick(req.body, ['username', 'password']);
     User.findByCredentials(body.username, body.password).then(user => {
         return user.generateAuthToken().then((token) => {
             res.header('x-auth', token).send(user);
         });
-    }).catch((e) => {
+    }).catch(e => {
         res.status(400).send();
     });
 });
@@ -82,6 +82,7 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
+//TODO is this route used somewhere?
 app.get('/getState/:icao', getStateByIcao, (req, res, next) => {
     const parsedData = res.data.states;
     res.send({
@@ -113,8 +114,16 @@ app.get('/authenticated/getMyIcaoList', (req, res, next) => {
         res.status(400).send(e);
     });
 });
-
-;
+app.delete('/authenticated/deleteIcao/:icao', (req, res, next) => {
+    const icaoToDelete = req.params.icao;
+    var user = new User(req.user);
+    const planeToDelete = user.planes.find(element => element.icao == icaoToDelete);
+    user.deleteIcaoNumber(planeToDelete.icao).then(() => {
+        res.send(`${icaoToDelete} and it's travel history was removed from your list`);
+    }).catch(e => {
+        res.status(400).send(e);
+    });
+})
 
 //see the current plane info from users list
 app.get('/authenticated/getCurrentPlaneState/:icao', async (req, res, next) => {

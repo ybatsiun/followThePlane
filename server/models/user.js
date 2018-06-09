@@ -109,6 +109,15 @@ UserSchema.methods.addIcaoNumber = function (icaoNumber) {
   });
 };
 
+UserSchema.methods.deleteIcaoNumber = function (icao) {
+  const user = this;
+  return user.update({
+    $pull: {
+      planes: { icao }
+    }
+  });
+}
+
 UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
   const userPlanesList = await this.find(
     {

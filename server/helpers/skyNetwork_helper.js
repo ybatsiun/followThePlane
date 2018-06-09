@@ -19,7 +19,6 @@ module.exports = {
                 reject(e.message);
             });
         })
-
     },
 
     getPlanesStates: async function getPlanesStates() {

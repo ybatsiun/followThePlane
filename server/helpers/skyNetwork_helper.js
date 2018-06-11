@@ -16,6 +16,7 @@ module.exports = {
                     if (processedData.states !== null) {
                         resolve(processedData.states[0]);
                     } else {
+                        //if there is no data about the plane
                         const noDataArray=new Array(17);
                         resolve(noDataArray.fill('NO DATA',0,17))
                     }

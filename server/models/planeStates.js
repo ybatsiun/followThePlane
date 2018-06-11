@@ -14,8 +14,8 @@ planeStatesSchema.statics.findByPlaneId = function (planeId) {
         return plane;
     });
 }
-planeStatesSchema.statics.deleteByPlaneId = function(planeID){
-    return this.deleteOne({planeID});
+planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
+    return this.deleteOne({ planeID });
 }
 
 planeStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
@@ -23,9 +23,9 @@ planeStatesSchema.statics.writeDataByPlaneId = function (planeId, data) {
         'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
         'spi', 'position_source'];
     const singlePlaneData = {};
-    for (let i = 0; i < data.length - 1; i++) {
-        singlePlaneData[dafaultNames[i]] = data[i];
-    };
+        for (let i = 0; i < dafaultNames.length - 1; i++) {
+            singlePlaneData[dafaultNames[i]] = data[i];
+        };
     return this.update(
         { planeID: planeId },
         { $push: { planeData: [singlePlaneData] } }

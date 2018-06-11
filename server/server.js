@@ -25,7 +25,7 @@ app.listen(port, () => {
 //background process to update plains info
 const updateInterval = 5; //mins
 setInterval(() => {
-    skyNetwork_helper.getPlanesStates();
+    skyNetwork_helper.fetchPlanesData();
 }, updateInterval * 60 * 1000);
 
 app.get('/', (req, res) => {

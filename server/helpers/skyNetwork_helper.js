@@ -13,7 +13,12 @@ module.exports = {
                 const h_helper = new http_helper();
                 h_helper.validateResponse(res);
                 return h_helper.processResponse(res).then(processedData => {
-                    resolve(processedData.states);
+                    if (processedData.states !== null) {
+                        resolve(processedData.states[0]);
+                    } else {
+                        const noDataArray=new Array(17);
+                        resolve(noDataArray.fill('NO DATA',0,17))
+                    }
                 });
             }).on('error', (e) => {
                 reject(e.message);
@@ -21,7 +26,7 @@ module.exports = {
         })
     },
 
-    getPlanesStates: async function getPlanesStates() {
+    fetchPlanesData: async function fetchPlanesData() {
         const planeStateList = await PlaneStates.getAllIds();
         for (const planeState of planeStateList) {
             const icao = await User.getIcaoByPlaneID(planeState.planeID);

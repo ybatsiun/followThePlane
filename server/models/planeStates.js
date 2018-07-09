@@ -59,5 +59,14 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     }
 }
 
+planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
+    const plane = await this.findOne({ planeID: planeId });
+    try {
+        return plane.trips[plane.currentTripIndex].tripData.slice(-1);
+    } catch (e) {
+        return 'The plain is on the ground';
+    }
+}
+
 const planeStates = mongoose.model('planeStates', planeStatesSchema);
 module.exports = planeStates;

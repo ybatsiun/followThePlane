@@ -12,18 +12,21 @@ const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
 const skyNetwork_helper = require('./helpers/skyNetwork_helper');
 const _ = require('lodash');
-const os = require('os');
 const app = express();
 const port = process.env.PORT;
 
+const authRouter = express.Router();
+authRouter.use(authenticate);
+
 app.use(bodyParser.json());
-app.use('/authenticated', authenticate);
+app.use('/authenticated', authRouter);
 
 app.listen(port, () => {
     console.log(`Started up at port ${port}`);
 });
+
 //background process to update plains info
-const updateInterval = 5; //mins
+const updateInterval = 5;//mins
 setInterval(() => {
     skyNetwork_helper.fetchPlanesData();
 }, updateInterval * 60 * 1000);
@@ -56,11 +59,11 @@ app.post('/register', (req, res) => {
     });
 });
 
-app.get('/authenticated/me', (req, res) => {
+authRouter.get('/me', (req, res) => {
     res.send(req.user);
 });
 
-app.delete('/authenticated/logout', (req, res, next) => {
+authRouter.delete('/logout', (req, res, next) => {
     req.user.removeToken(req.token).then(() => {
         res.status(200).send();
     }, () => {
@@ -68,7 +71,7 @@ app.delete('/authenticated/logout', (req, res, next) => {
     });
 });
 
-app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
+authRouter.get('/icaoList', getAllStates, (req, res, next) => {
     const parsedData = res.data.states;
     const icaoNumbersList = parsedData.reduce((accumulator, currentVal) => {
         accumulator.push(currentVal[0]);
@@ -76,8 +79,8 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-
-app.post('/authenticated/addIcao/:icao', (req, res, next) => {
+//TODO handle the case when it already existis in your collection
+authRouter.post('/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);
     user.addIcaoNumber(icao).then(icaoDocumentID => {
@@ -91,7 +94,7 @@ app.post('/authenticated/addIcao/:icao', (req, res, next) => {
         res.status(400).send(e);
     });
 });
-app.get('/authenticated/getMyIcaoList', (req, res, next) => {
+authRouter.get('/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then(icaoList => {
         const icaoListFormatted = [];
         for (const icaoObj of icaoList) {
@@ -102,7 +105,8 @@ app.get('/authenticated/getMyIcaoList', (req, res, next) => {
         res.status(400).send(e.message);
     });
 });
-app.delete('/authenticated/deleteIcao/:icao', async (req, res, next) => {
+//TODO handle case when icao is missing
+authRouter.delete('/deleteIcao/:icao', async (req, res, next) => {
     const icaoToDelete = req.params.icao;
     var user = new User(req.user);
     const planeToDelete = user.planes.find(element => element.icao == icaoToDelete);
@@ -115,7 +119,7 @@ app.delete('/authenticated/deleteIcao/:icao', async (req, res, next) => {
     };
 })
 //see the current plane info from users list
-app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
+authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
     const icaoList = await User.getIcaoList(req.user.username);
     const planeIds = getUserPlaneIds();
     const planesCurrentData = [];
@@ -138,7 +142,7 @@ app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
     };
 });
 
-app.get('/authenticated/getPlaneInfo/:planeId', async (req, res, next) => {
+authRouter.get('/getPlaneInfo/:planeId', async (req, res, next) => {
     PlaneStates.getTripsByPlaneId(req.params.planeId).then(planeObj => {
         res.send({ planeObj });
     });

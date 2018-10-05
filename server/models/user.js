@@ -48,7 +48,7 @@ UserSchema.statics.findByCredentials = function (username, password) {
 
   return User.findOne({ username }).then((user) => {
     if (!user) {
-      return Promise.reject();
+      return Promise.reject('There is no such user in the system');
     }
 
     return new Promise((resolve, reject) => {

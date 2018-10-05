@@ -33,7 +33,6 @@ app.get('/', (req, res) => {
         welcomeMessage: "Hello!"
     });
 });
-//TODO if handle the case when there is no such user
 app.post('/login', (req, res) => {
     const body = _.pick(req.body, ['username', 'password']);
     User.findByCredentials(body.username, body.password).then(user => {
@@ -41,7 +40,7 @@ app.post('/login', (req, res) => {
             res.header('x-auth', token).send(user);
         });
     }).catch(e => {
-        res.status(400).send();
+        res.status(400).send(e);
     });
 });
 

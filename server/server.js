@@ -69,11 +69,6 @@ app.delete('/authenticated/logout', (req, res, next) => {
     });
 });
 
-app.get('/authenticated/needsAuth', (req, res, next) => {
-    res.send({
-        message: `Welcome!.This page requires authentication!`
-    });
-});
 app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     const parsedData = res.data.states;
     const icaoNumbersList = parsedData.reduce((accumulator, currentVal) => {
@@ -82,13 +77,7 @@ app.get('/authenticated/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-//TODO is this route used somewhere?
-app.get('/getState/:icao', getStateByIcao, (req, res, next) => {
-    const parsedData = res.data.states;
-    res.send({
-        state: parsedData
-    });
-});
+
 app.post('/authenticated/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);

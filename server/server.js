@@ -24,8 +24,8 @@ app.listen(port, () => {
 });
 //background process to update plains info
 const updateInterval = 5; //mins
-setInterval(() => { 
-skyNetwork_helper.fetchPlanesData();
+setInterval(() => {
+    skyNetwork_helper.fetchPlanesData();
 }, updateInterval * 60 * 1000);
 
 app.get('/', (req, res) => {
@@ -126,8 +126,8 @@ app.delete('/authenticated/deleteIcao/:icao', async (req, res, next) => {
         res.status(400).send(e.message);
     };
 })
-
 //see the current plane info from users list
+//TODO return planeIDs
 app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
     const icaoList = await User.getIcaoList(req.user.username);
     const planeIds = getUserPlaneIds();
@@ -135,7 +135,7 @@ app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
     for (const icao in planeIds) {
         planesCurrentData[icao] = await PlaneStates.getCurrentStateByPlaneId(planeIds[icao]);
     }
-    res.send({ message: `Here is your Plane States list ${JSON.stringify(planesCurrentData)}` });
+    res.send({ planesCurrentData });
 
     function getUserPlaneIds() {
         const planeDataObj = {};
@@ -144,6 +144,12 @@ app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
         };
         return planeDataObj;
     }
+});
+
+app.get('/authenticated/getPlaneInfo/:planeId', async (req, res, next) => {
+    PlaneStates.getTripsByPlaneId(req.params.planeId).then(planeObj => {
+        res.send({ planeObj });
+    });
 });
 
 

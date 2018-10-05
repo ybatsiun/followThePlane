@@ -26,6 +26,12 @@ planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
     return this.deleteOne({ planeID });
 }
 
+planeStatesSchema.statics.getTripsByPlaneId = async function (planeID) {
+    return this.findOne({ planeID });
+    //TODO isCurrent vs. isLastTrip
+    //planeObj[currentTripIndex].isCurrent = true;
+}
+
 planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     const dafaultNames = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
         'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
@@ -92,6 +98,8 @@ planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
         return 'The plain is on the ground';
     }
 }
+
+
 
 const planeStates = mongoose.model('planeStates', planeStatesSchema);
 module.exports = planeStates;

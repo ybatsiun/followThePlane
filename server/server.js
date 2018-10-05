@@ -115,13 +115,17 @@ app.delete('/authenticated/deleteIcao/:icao', async (req, res, next) => {
     };
 })
 //see the current plane info from users list
-//TODO return planeIDs
 app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
     const icaoList = await User.getIcaoList(req.user.username);
     const planeIds = getUserPlaneIds();
-    const planesCurrentData = {};
+    const planesCurrentData = [];
     for (const icao in planeIds) {
-        planesCurrentData[icao] = await PlaneStates.getCurrentStateByPlaneId(planeIds[icao]);
+        let planeData = {};
+        planeData.id = planeIds[icao];
+
+        const planeStates = await PlaneStates.getCurrentStateByPlaneId(planeIds[icao]);
+        planeData = { ...planeData, ...planeStates[0] };
+        planesCurrentData.push(planeData);
     }
     res.send({ planesCurrentData });
 
@@ -131,7 +135,7 @@ app.get('/authenticated/getCurrentPlaneStates', async (req, res, next) => {
             planeDataObj[icaoObj.icao] = icaoObj.id;
         };
         return planeDataObj;
-    }
+    };
 });
 
 app.get('/authenticated/getPlaneInfo/:planeId', async (req, res, next) => {

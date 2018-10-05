@@ -95,7 +95,7 @@ planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
     try {
         return plane.trips[plane.currentTripIndex].tripData.slice(-1);
     } catch (e) {
-        return 'The plain is on the ground';
+        return [{ message: 'The plain is on the ground' }];
     }
 }
 

@@ -50,13 +50,38 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const query = {};
         query[currentTripKey] = singlePlaneData;
-        return this.update(
+        await this.update(
             { planeID: planeId },
             { $push: query }
-        )
+        );
+        return this.calculateAvarageValues(planeId);
     } else {
         //current trip is empty and current trip index doesn't have to be incremented
     }
+}
+
+planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
+    const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
+
+    const tripDataQuery = await this.findOne({ planeID: planeId });
+    const tripData = tripDataQuery.trips[currentTripIndex].tripData;
+    const tripDataLength = tripData.length;
+    const velocitySum = tripData.reduce((accumulator, currentValue) => {
+        return accumulator + Number.parseFloat(currentValue.velocity || 0);
+    }, 0);
+    const geoAltitudeSum = tripData.reduce((accumulator, currentValue) => {
+        return accumulator + Number.parseFloat(currentValue.geo_altitude || 0);
+    }, 0);
+
+    const query = {};
+    const currentTripKey = "trips." + currentTripIndex;
+    query[currentTripKey + '.avarageVelocity'] = velocitySum / tripDataLength;
+    query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
+
+    return this.update(
+        { planeID: planeId },
+        { $set: query }
+    );
 }
 
 planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {

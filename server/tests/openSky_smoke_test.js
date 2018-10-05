@@ -7,6 +7,7 @@ const request = require('request');
 const auth_helper = require('./helpers/authentication_helper.js');
 const User = require('../models/user');
 const PlainState = require('../models/planeStates');
+const host = 'localhost:3000';
 
 describe('Open sky network. Smoke', function () {
     this.timeout(30000);
@@ -19,7 +20,7 @@ describe('Open sky network. Smoke', function () {
                 headers: {
                     'x-auth': user.token,
                 },
-                uri: 'http://localhost:3000/authenticated/icaoList',
+                uri: `http://${host}/authenticated/icaoList`,
                 method: 'GET'
             }, function (err, res, body) {
                 expect(res.statusCode).to.be(200);
@@ -37,7 +38,7 @@ describe('Open sky network. Smoke', function () {
             headers: {
                 'x-auth': user.token,
             },
-            uri: `http://localhost:3000/authenticated/addIcao/${firstIcaoAvailable}`,
+            uri: `http://${host}/authenticated/addIcao/${firstIcaoAvailable}`,
             method: 'POST'
         }, function (err, res, body) {
             if (err) {
@@ -48,7 +49,7 @@ describe('Open sky network. Smoke', function () {
                 expect(user[0].planes.length).to.be(1);
                 const targetPlaneId = user[0].planes[0]._id.toHexString();
                 PlainState.find({ planeID: targetPlaneId }).then(plainState => {
-                    expect(plainState[0].planeData.length).to.be(0);
+                    expect(plainState[0].trips.length).to.be(0);
                     done();
                 });
             });

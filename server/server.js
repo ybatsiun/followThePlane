@@ -104,17 +104,20 @@ authRouter.get('/getMyIcaoList', (req, res, next) => {
         res.status(400).send(e.message);
     });
 });
-//TODO handle case when icao is missing
 authRouter.delete('/deleteIcao/:icao', async (req, res, next) => {
     const icaoToDelete = req.params.icao;
     var user = new User(req.user);
     const planeToDelete = user.planes.find(element => element.icao == icaoToDelete);
-    try {
-        await PlaneStates.deleteByPlaneId(planeToDelete._id.toHexString());
-        await user.deleteIcaoNumber(planeToDelete.icao);
-        res.send({ message: `plain with icao number ${icaoToDelete} and it's travel history was removed from your list` });
-    } catch (e) {
-        res.status(400).send(e.message);
+    if (planeToDelete) {
+        try {
+            await PlaneStates.deleteByPlaneId(planeToDelete._id.toHexString());
+            await user.deleteIcaoNumber(planeToDelete.icao);
+            res.send({ message: `plain with icao number ${icaoToDelete} and it's travel history was removed from your list` });
+        } catch (e) {
+            res.status(400).send(e.message);
+        };
+    } else {
+        res.status(400).send("Plane was not found in users plain list");
     };
 })
 //see the current plane info from users list

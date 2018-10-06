@@ -127,7 +127,7 @@ UserSchema.methods.deleteIcaoNumber = function (icao) {
       planes: { icao }
     }
   });
-}
+};
 
 UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
   const userPlanesList = await this.find(

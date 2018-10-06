@@ -50,12 +50,18 @@ app.post('/login', (req, res) => {
 app.post('/register', (req, res) => {
     const body = _.pick(req.body, ['username', 'password']);
     var user = new User(body);
-    user.save().then(() => {
-        return user.generateAuthToken();
-    }).then(token => {
-        res.header('x-auth', token).send(user);
-    }).catch(e => {
-        res.status(400).send(e);
+    User.isUserExist(body.username).then(isUserExist => {
+        if (isUserExist) {
+            res.status(400).send('User with such username already exists');
+        } else {
+            user.save().then(() => {
+                return user.generateAuthToken();
+            }).then(token => {
+                res.header('x-auth', token).send(user);
+            }).catch(e => {
+                res.status(400).send(e);
+            });
+        };
     });
 });
 

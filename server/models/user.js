@@ -129,6 +129,13 @@ UserSchema.methods.deleteIcaoNumber = function (icao) {
   });
 };
 
+UserSchema.statics.isUserExist = async function (username) {
+  const user = await User.find(
+    { username }
+  );
+  return user.length !== 0
+};
+
 UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
   const userPlanesList = await this.find(
     {

@@ -103,10 +103,21 @@ UserSchema.methods.removeToken = function (token) {
 
 UserSchema.methods.addIcaoNumber = function (icaoNumber) {
   const user = this;
-  user.planes.push({ icao: icaoNumber });
-  return user.save().then(() => {
-    return user.planes.slice(-1)[0]._id.toHexString();
+  let isIcaoAlreadyExist = false;
+  user.planes.forEach(plane => {
+    if (plane.icao == icaoNumber) {
+      isIcaoAlreadyExist = true;
+      return;
+    }
   });
+  if (!isIcaoAlreadyExist) {
+    user.planes.push({ icao: icaoNumber });
+    return user.save().then(() => {
+      return user.planes.slice(-1)[0]._id.toHexString();
+    });
+  } else {
+    return Promise.reject('This icao number already existis');
+  };
 };
 
 UserSchema.methods.deleteIcaoNumber = function (icao) {

@@ -52,9 +52,9 @@ app.post('/register', (req, res) => {
     var user = new User(body);
     user.save().then(() => {
         return user.generateAuthToken();
-    }).then((token) => {
+    }).then(token => {
         res.header('x-auth', token).send(user);
-    }).catch((e) => {
+    }).catch(e => {
         res.status(400).send(e);
     });
 });
@@ -79,7 +79,6 @@ authRouter.get('/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-//TODO handle the case when it already existis in your collection
 authRouter.post('/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
     var user = new User(req.user);

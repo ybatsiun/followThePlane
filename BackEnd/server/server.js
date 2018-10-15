@@ -31,7 +31,14 @@ setInterval(() => {
     skyNetwork_helper.fetchPlanesData();
 }, updateInterval * 60 * 1000);
 
+
+app.get('/*', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+});
+
 app.get('/', (req, res) => {
+    console.log('be is working...')
     res.send({
         welcomeMessage: "Hello!"
     });

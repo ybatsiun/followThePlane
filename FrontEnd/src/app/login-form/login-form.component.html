@@ -1,14 +1,25 @@
 <div class="container">
   <h1>Login Form</h1>
-  <form name="form" (ngSubmit)="onSubmit()">
+  <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+
     <div class="form-group">
       <label for="email">Email</label>
-      <input type="text" class="form-control" id="email" [(ngModel)]="model.email" name="email" required>
+      <input type="text" class="form-control" #email="ngModel" [(ngModel)]="model.email" name="email" [ngClass]="{ 'is-invalid': f.submitted && email.invalid }"
+        required email>
+      <div *ngIf="f.submitted && email.invalid" class="invalid-feedback">
+        <div *ngIf="email.errors.required">Email is required</div>
+        <div *ngIf="email.errors.email">Email must be a valid email address</div>
+      </div>
     </div>
 
     <div class="form-group">
       <label for="password">Password</label>
-      <input type="text" class="form-control" id="password" [(ngModel)]="model.password" name="password" required>
+      <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" #password="ngModel"
+        [ngClass]="{ 'is-invalid': f.submitted && password.invalid }" required minlength="6">
+      <div *ngIf="f.submitted && password.invalid" class="invalid-feedback">
+        <div *ngIf="password.errors.required">Password is required</div>
+        <div *ngIf="password.errors.minlength">Password must be at least 6 characters</div>
+      </div>
     </div>
 
     <button type="submit" id="submit" value="Submit" class="btn btn-success">Submit</button>

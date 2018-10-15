@@ -14,16 +14,8 @@ export class LoginFormComponent {
 
   onSubmit() {
     this.submitted = true;
-    console.log('submitted')
-    this.getWelcomeMessageFromBE();
+    this.httpCLient.login(this.model);
   }
-  model = new UserLoginInfo('foo@email.com', 'Dr IQ');
+  model = new UserLoginInfo('username', 'fooPassword');
 
-  getWelcomeMessageFromBE() {
-    this.httpCLient.getHelloMessage().subscribe((data) => {
-
-    })
-
-
-  }
 }

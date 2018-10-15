@@ -3,12 +3,12 @@
   <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
 
     <div class="form-group">
-      <label for="email">Email</label>
-      <input type="text" class="form-control" #email="ngModel" [(ngModel)]="model.email" name="email" [ngClass]="{ 'is-invalid': f.submitted && email.invalid }"
-        required email>
-      <div *ngIf="f.submitted && email.invalid" class="invalid-feedback">
-        <div *ngIf="email.errors.required">Email is required</div>
-        <div *ngIf="email.errors.email">Email must be a valid email address</div>
+      <label for="username">Username</label>
+      <input type="text" class="form-control" #username="ngModel" [(ngModel)]="model.username" name="username" [ngClass]="{ 'is-invalid': f.submitted && username.invalid }"
+        required minlength="3">
+      <div *ngIf="f.submitted && username.invalid" class="invalid-feedback">
+        <div *ngIf="username.errors.required">username is required</div>
+        <div *ngIf="username.errors.username">username must be a valid username address</div>
       </div>
     </div>
 

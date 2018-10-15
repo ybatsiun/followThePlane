@@ -32,13 +32,14 @@ setInterval(() => {
 }, updateInterval * 60 * 1000);
 
 
-app.get('/*', (req, res, next) => {
+app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*')
     next();
 });
 
 app.get('/', (req, res) => {
-    console.log('be is working...')
     res.send({
         welcomeMessage: "Hello!"
     });

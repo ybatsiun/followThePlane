@@ -1,6 +1,6 @@
 <div class="container">
   <h1>Login Form</h1>
-  <form name="form" (ngSubmit)="f.form.valid && onSubmit()" #f="ngForm" novalidate>
+  <form name="form" #f="ngForm" novalidate>
 
     <div class="form-group">
       <label for="username">Username</label>
@@ -23,6 +23,8 @@
     </div>
 
     <div *ngIf="model.error">{{model.error}}</div>
-    <button type="submit" id="submit" value="Submit" class="btn btn-success">Submit</button>
+    <button type="submit" id="login" value="Login" class="btn btn-success" (click)="f.form.valid && login()">Login</button>
+    <br/>
+    <button type="submit" id="register" value="Register" class="btn btn-success" (click)="f.form.valid && register()">Register</button>
   </form>
 </div>

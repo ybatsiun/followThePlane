@@ -37,6 +37,15 @@ export class HttpClientService {
     )
   };
 
+  register(userLoginInfo: any): Observable<UserLoginInfo> {
+    return this.http.post<UserLoginInfo>(this.beHost + '/register', {
+      'username': userLoginInfo.username,
+      'password': userLoginInfo.password
+    }).pipe(
+      catchError(this.handleError<UserLoginInfo>())
+    )
+  };
+
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
       // Let the app keep running by returning an empty result.

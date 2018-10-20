@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserLoginInfo } from '../user-login-info';
 import { HttpClientService } from '../http-client.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-login-form',
@@ -10,21 +11,27 @@ import { HttpClientService } from '../http-client.service';
 export class LoginFormComponent {
 
   constructor(private httpCLient: HttpClientService) { }
+  model = new UserLoginInfo('testtest', 'testtest', '');
   submitted = false;
   error;
 
-  onSubmit() {
+  login() {
+    this.formAction(this.httpCLient.login(this.model));
+  }
+
+  register() {
+    this.formAction(this.httpCLient.register(this.model));
+  }
+
+  private formAction(action: Observable<UserLoginInfo>) {
     this.submitted = true;
-    const m = this.httpCLient.login(this.model).subscribe(
+    action.subscribe(
       userLoginInfo => {
-        debugger
         if (userLoginInfo.error) {
           this.model.error = userLoginInfo.error
         } else {
           this.model.error = "";
         };
-        console.log(this.model);
       });
   }
-  model = new UserLoginInfo('testtest', 'testtest', '');
 }

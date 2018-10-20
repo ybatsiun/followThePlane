@@ -11,11 +11,20 @@ export class LoginFormComponent {
 
   constructor(private httpCLient: HttpClientService) { }
   submitted = false;
+  error;
 
   onSubmit() {
     this.submitted = true;
-    this.httpCLient.login(this.model);
+    const m = this.httpCLient.login(this.model).subscribe(
+      userLoginInfo => {
+        debugger
+        if (userLoginInfo.error) {
+          this.model.error = userLoginInfo.error
+        } else {
+          this.model.error = "";
+        };
+        console.log(this.model);
+      });
   }
-  model = new UserLoginInfo('username', 'fooPassword');
-
+  model = new UserLoginInfo('testtest', 'testtest', '');
 }

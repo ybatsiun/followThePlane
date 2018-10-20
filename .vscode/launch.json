@@ -24,6 +24,13 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}\\BackEnd/server/server.js"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch Chrome",
+            "webRoot": "${workspaceFolder}\\FrontEnd/",
+            "url": "http://localhost:4200/",
         }
     ]
 }

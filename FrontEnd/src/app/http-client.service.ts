@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { LoginFormComponent } from './login-form/login-form.component';
 import { UserLoginInfo } from './user-login-info';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
@@ -25,15 +28,19 @@ export class HttpClientService {
     return this.http.get(this.beHost + '/');
   }
 
-  login(userLoginInfo: UserLoginInfo) {
-    return this.http.post(this.beHost + '/login', {
+  login(userLoginInfo: any): Observable<UserLoginInfo> {
+    return this.http.post<UserLoginInfo>(this.beHost + '/login', {
       'username': userLoginInfo.username,
       'password': userLoginInfo.password
-    }).subscribe(data => {
-      debugger
-    }, error => {
-      debugger
-    })
-  }
+    }).pipe(
+      catchError(this.handleError<UserLoginInfo>())
+    )
+  };
 
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      // Let the app keep running by returning an empty result.
+      return of(error as T);
+    };
+  }
 }

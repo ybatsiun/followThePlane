@@ -13,12 +13,20 @@ export class HttpClientService {
   private beHost = 'http://localhost:3000';
   private routes = {
     login: '/login',
-    register: '/register'
+    register: '/register',
+    currentUser: '/authenticated/me'
   };
   private httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      //'x-auth': this.getCookie('followThePlaneCookie') || ''
     })
+  }
+
+  private getCookie(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
   }
 
   constructor(private http: HttpClient) { }
@@ -36,12 +44,18 @@ export class HttpClientService {
     return this.userInfoAction(userLoginInfo, this.routes.login);
   };
 
-  private userInfoAction(userLoginInfo: any, route: string): Observable<UserLoginInfo> {
+  getCurrentUser(): Observable<any> {
+    return this.http.get<any>(this.beHost + this.routes.currentUser).pipe(
+      catchError(this.handleError<any>())
+    );
+  };
+
+  private userInfoAction(userLoginInfo: any, route: string): Observable<any> {
     return this.http.post<UserLoginInfo>(this.beHost + route, {
       'username': userLoginInfo.username,
       'password': userLoginInfo.password
     }).pipe(
-      catchError(this.handleError<UserLoginInfo>())
+      catchError(this.handleError<any>())
     )
   };
 

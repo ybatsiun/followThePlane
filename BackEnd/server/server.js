@@ -15,6 +15,12 @@ const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*')
+    next();
+});
 const authRouter = express.Router();
 authRouter.use(authenticate);
 
@@ -32,12 +38,7 @@ setInterval(() => {
 }, updateInterval * 60 * 1000);
 
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*')
-    next();
-});
+
 
 app.get('/', (req, res) => {
     res.send({
@@ -72,7 +73,7 @@ app.post('/register', (req, res) => {
         };
     });
 });
-
+//TODO return only safe info
 authRouter.get('/me', (req, res) => {
     res.send(req.user);
 });

@@ -10,10 +10,11 @@ import { Observable } from 'rxjs';
 })
 export class LoginFormComponent {
 
-  constructor(private httpCLient: HttpClientService) { }
+  constructor(private httpCLient: HttpClientService) {
+
+  }
   model = new UserLoginInfo('testtest', 'testtest', '');
   submitted = false;
-  error;
 
   login() {
     this.formAction(this.httpCLient.login(this.model));
@@ -23,7 +24,7 @@ export class LoginFormComponent {
     this.formAction(this.httpCLient.register(this.model));
   }
 
-  private formAction(action: Observable<UserLoginInfo>) {
+  private formAction(action: Observable<any>) {
     this.submitted = true;
     action.subscribe(
       userLoginInfo => {
@@ -31,6 +32,8 @@ export class LoginFormComponent {
           this.model.error = userLoginInfo.error
         } else {
           this.model.error = "";
+          document.cookie = `followThePlaneCookie=${userLoginInfo.tokens.slice(-1)[0].token}`;
+
         };
       });
   }

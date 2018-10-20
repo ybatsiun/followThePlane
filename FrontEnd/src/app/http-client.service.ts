@@ -10,17 +10,17 @@ import { catchError, map, tap } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class HttpClientService {
-  beHost = 'http://localhost:3000';
-  httpOptions = {
+  private beHost = 'http://localhost:3000';
+  private routes = {
+    login: '/login',
+    register: '/register'
+  };
+  private httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
     })
   }
 
-  private extractData(res: Response) {
-    let body = res;
-    return body || {};
-  }
   constructor(private http: HttpClient) { }
 
   getHelloMessage() {
@@ -28,17 +28,16 @@ export class HttpClientService {
     return this.http.get(this.beHost + '/');
   }
 
-  login(userLoginInfo: any): Observable<UserLoginInfo> {
-    return this.http.post<UserLoginInfo>(this.beHost + '/login', {
-      'username': userLoginInfo.username,
-      'password': userLoginInfo.password
-    }).pipe(
-      catchError(this.handleError<UserLoginInfo>())
-    )
+  register(userRegisterInfo: any): Observable<UserLoginInfo> {
+    return this.userInfoAction(userRegisterInfo, this.routes.register);
   };
 
-  register(userLoginInfo: any): Observable<UserLoginInfo> {
-    return this.http.post<UserLoginInfo>(this.beHost + '/register', {
+  login(userLoginInfo: any): Observable<UserLoginInfo> {
+    return this.userInfoAction(userLoginInfo, this.routes.login);
+  };
+
+  private userInfoAction(userLoginInfo: any, route: string): Observable<UserLoginInfo> {
+    return this.http.post<UserLoginInfo>(this.beHost + route, {
       'username': userLoginInfo.username,
       'password': userLoginInfo.password
     }).pipe(
@@ -51,5 +50,5 @@ export class HttpClientService {
       // Let the app keep running by returning an empty result.
       return of(error as T);
     };
-  }
+  };
 }

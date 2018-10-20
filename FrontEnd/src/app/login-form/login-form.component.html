@@ -7,8 +7,8 @@
       <input type="text" class="form-control" #username="ngModel" [(ngModel)]="model.username" name="username" [ngClass]="{ 'is-invalid': f.submitted && username.invalid }"
         required minlength="3">
       <div *ngIf="f.submitted && username.invalid" class="invalid-feedback">
-        <div *ngIf="username.errors.required">username is required</div>
-        <div *ngIf="username.errors.username">username must be a valid username address</div>
+        <div *ngIf="!!username.errors.required">username is required</div>
+        <div *ngIf="!!username.errors.username">username must be a valid username address</div>
       </div>
     </div>
 
@@ -17,8 +17,8 @@
       <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" #password="ngModel"
         [ngClass]="{ 'is-invalid': f.submitted && password.invalid }" required minlength="6">
       <div *ngIf="f.submitted && password.invalid" class="invalid-feedback">
-        <div *ngIf="password.errors.required">Password is required</div>
-        <div *ngIf="password.errors.minlength">Password must be at least 6 characters</div>
+        <div *ngIf="!!password.errors.required">Password is required</div>
+        <div *ngIf="!!password.errors.minlength">Password must be at least 6 characters</div>
       </div>
     </div>
 

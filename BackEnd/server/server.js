@@ -15,10 +15,13 @@ const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
 
+app.options("/*", function (req, res, next) {
+    setAccessHeaders(res);
+    res.send(200);
+});
+
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*')
+    setAccessHeaders(res);
     next();
 });
 const authRouter = express.Router();
@@ -165,5 +168,10 @@ authRouter.get('/getPlaneInfo/:planeId', async (req, res, next) => {
     });
 });
 
+function setAccessHeaders(res){
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+}
 
 module.exports = app;

@@ -16,18 +16,6 @@ export class HttpClientService {
     register: '/register',
     currentUser: '/authenticated/me'
   };
-  private httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      //'x-auth': this.getCookie('followThePlaneCookie') || ''
-    })
-  }
-
-  private getCookie(name) {
-    const value = "; " + document.cookie;
-    const parts = value.split("; " + name + "=");
-    if (parts.length == 2) return parts.pop().split(";").shift();
-  }
 
   constructor(private http: HttpClient) { }
 

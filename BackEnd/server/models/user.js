@@ -56,8 +56,7 @@ UserSchema.statics.findByCredentials = function (username, password) {
         if (res) {
           resolve(user);
         } else {
-          console.log('Incorrect password');
-          reject();
+          reject('Incorrect password');
         }
       });
     });

@@ -13,13 +13,11 @@ export class HelloComponent implements OnInit {
   ngOnInit(){
     this.getUser();
   }
-
   username; error;
 
   getUser(): void {
     this.httpCLient.getCurrentUser().subscribe(userInfo => {
       if (userInfo.error) {
-        console.log('userInfo.error ',userInfo.error)
         this.error = userInfo.error
       } else {
         this.username = userInfo.username;

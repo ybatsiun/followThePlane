@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserLoginInfo } from '../user-login-info';
 import { HttpClientService } from '../http-client.service';
 import { Observable } from 'rxjs';
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-login-form',
@@ -10,7 +11,7 @@ import { Observable } from 'rxjs';
 })
 export class LoginFormComponent {
 
-  constructor(private httpCLient: HttpClientService) {
+  constructor(private httpCLient: HttpClientService, private router: Router) {
 
   }
   model = new UserLoginInfo('testtest', 'testtest', '');
@@ -33,7 +34,7 @@ export class LoginFormComponent {
         } else {
           this.model.error = "";
           document.cookie = `followThePlaneCookie=${userLoginInfo.tokens.slice(-1)[0].token}`;
-
+          this.router.navigateByUrl('/welcome');
         };
       });
   }

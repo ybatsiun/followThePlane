@@ -23,8 +23,8 @@
     </div>
 
     <div *ngIf="model.error">{{model.error}}</div>
-    <button routerLink="/welcome" type="submit" id="login" value="Login" class="btn btn-success" (click)="f.form.valid && login()">Login</button>
+    <button type="button" id="login" value="Login" class="btn btn-success" (click)="f.form.valid && login()">Login</button>
     <br/>
-    <button routerLink="/welcome" type="submit" id="register" value="Register" class="btn btn-success" (click)="f.form.valid && register()">Register</button>
+    <button type="button" id="register" value="Register" class="btn btn-success" (click)="f.form.valid && register()">Register</button>
   </form>
 </div>

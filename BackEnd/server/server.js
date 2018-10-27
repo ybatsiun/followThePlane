@@ -84,8 +84,8 @@ authRouter.get('/me', (req, res) => {
 authRouter.delete('/logout', (req, res, next) => {
     req.user.removeToken(req.token).then(() => {
         res.status(200).send();
-    }, () => {
-        res.status(400).send();
+    }, (err) => {
+        res.status(400).send(err);
     });
 });
 

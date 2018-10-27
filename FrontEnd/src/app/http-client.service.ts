@@ -13,6 +13,7 @@ export class HttpClientService {
   private beHost = 'http://localhost:3000';
   private routes = {
     login: '/login',
+    logout: '/authenticated/logout',
     register: '/register',
     currentUser: '/authenticated/me'
   };
@@ -30,6 +31,12 @@ export class HttpClientService {
 
   login(userLoginInfo: any): Observable<UserLoginInfo> {
     return this.userInfoAction(userLoginInfo, this.routes.login);
+  };
+
+  logout(): Observable<any> {
+    return this.http.delete<any>(this.beHost + this.routes.logout).pipe(
+      catchError(this.handleError<any>())
+    );
   };
 
   getCurrentUser(): Observable<any> {

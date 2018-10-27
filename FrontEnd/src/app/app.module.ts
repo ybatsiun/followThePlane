@@ -5,15 +5,15 @@ import { HttpClientModule, HttpInterceptor,HTTP_INTERCEPTORS } from '@angular/co
 
 import { AppComponent } from './app.component';
 import { LoginFormComponent } from './login-form/login-form.component';
-import { HelloComponent } from './hello/hello.component';
 import { ApiRequestInterceptor } from './http-interceptor';
 import { AppRoutingModule } from './app-routing.module';
+import { DashboardComponent } from './dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginFormComponent,
-    HelloComponent,
+    DashboardComponent,
 
   ],
   imports: [

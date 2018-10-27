@@ -3,17 +3,23 @@ import { HttpClientService } from '../http-client.service';
 
 
 @Component({
-  selector: 'app-hello',
-  templateUrl: './hello.component.html',
-  styleUrls: ['./hello.component.css']
+  selector: 'app-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css']
 })
-export class HelloComponent implements OnInit {
+export class DashboardComponent implements OnInit {
 
   constructor(private httpCLient: HttpClientService) { }
-  ngOnInit(){
+  username; error;
+
+  ngOnInit() {
     this.getUser();
   }
-  username; error;
+
+  logout() {
+    this.httpCLient.logout().subscribe(() => { });
+  }
+
 
   getUser(): void {
     this.httpCLient.getCurrentUser().subscribe(userInfo => {
@@ -24,5 +30,4 @@ export class HelloComponent implements OnInit {
       }
     });
   };
-
 }

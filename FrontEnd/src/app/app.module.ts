@@ -8,12 +8,16 @@ import { LoginFormComponent } from './login-form/login-form.component';
 import { ApiRequestInterceptor } from './http-interceptor';
 import { AppRoutingModule } from './app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { PlanesListComponent } from './planes-list/planes-list.component';
+import { AvailablePlanesComponent } from './available-planes/available-planes.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginFormComponent,
     DashboardComponent,
+    PlanesListComponent,
+    AvailablePlanesComponent,
 
   ],
   imports: [

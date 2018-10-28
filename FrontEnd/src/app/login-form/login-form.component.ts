@@ -9,6 +9,7 @@ import { Router } from "@angular/router";
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.css']
 })
+// TODO onInit if you are logged in go to welcome
 export class LoginFormComponent {
 
   constructor(private httpCLient: HttpClientService, private router: Router) {

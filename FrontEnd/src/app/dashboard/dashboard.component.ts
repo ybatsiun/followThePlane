@@ -17,7 +17,9 @@ export class DashboardComponent implements OnInit {
   }
 
   logout() {
-    this.httpCLient.logout().subscribe(() => { });
+    this.httpCLient.logout().subscribe(() => {
+      //TODO delete cookies 
+     });
   }
 
 

@@ -40,9 +40,6 @@ setInterval(() => {
     skyNetwork_helper.fetchPlanesData();
 }, updateInterval * 60 * 1000);
 
-
-
-
 app.get('/', (req, res) => {
     res.send({
         welcomeMessage: "Hello!"
@@ -76,7 +73,6 @@ app.post('/register', (req, res) => {
         };
     });
 });
-//TODO return only safe info
 authRouter.get('/me', (req, res) => {
     res.send(req.user);
 });

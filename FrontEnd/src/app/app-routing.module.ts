@@ -5,16 +5,17 @@ import { LoginFormComponent } from './login-form/login-form.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PlanesListComponent } from './planes-list/planes-list.component';
 import { AvailablePlanesComponent } from './available-planes/available-planes.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 const routes: Routes = [
-  { path: '', component: LoginFormComponent }, //TODO if you re logged in and go to root you are still asked to log in
+  { path: '', component: LoginFormComponent },
   {
     path: 'welcome', component: DashboardComponent, children: [
       { path: 'myPlaneList', component: PlanesListComponent },
       { path: 'availablePlanes', component: AvailablePlanesComponent }
     ]
-  }
-  //{ path: '**', component: PageNotFoundComponent } TODO
+  },
+  { path: '**', component: PageNotFoundComponent }
 ];
 
 @NgModule({

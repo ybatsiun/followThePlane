@@ -9,9 +9,14 @@ import { Router } from "@angular/router";
   templateUrl: './login-form.component.html',
   styleUrls: ['./login-form.component.css']
 })
-// TODO onInit if you are logged in go to welcome
-export class LoginFormComponent {
+export class LoginFormComponent implements OnInit {
 
+  ngOnInit(): void {
+    debugger
+    if (this.getCookie('followThePlaneCookie')) {
+      this.router.navigateByUrl('/welcome');
+    }
+  }
   constructor(private httpCLient: HttpClientService, private router: Router) {
 
   }
@@ -38,5 +43,12 @@ export class LoginFormComponent {
           this.router.navigateByUrl('/welcome');
         };
       });
+  }
+
+  //dublicate!
+  private getCookie(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
   }
 }

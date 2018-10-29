@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { PlanesListComponent } from './planes-list/planes-list.component';
 import { AvailablePlanesComponent } from './available-planes/available-planes.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { AvailablePlanesComponent } from './available-planes/available-planes.co
     DashboardComponent,
     PlanesListComponent,
     AvailablePlanesComponent,
+    PageNotFoundComponent,
 
   ],
   imports: [

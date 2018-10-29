@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClientService } from '../http-client.service';
-
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-dashboard',
@@ -9,7 +9,7 @@ import { HttpClientService } from '../http-client.service';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor(private httpCLient: HttpClientService) { }
+  constructor(private httpCLient: HttpClientService,private router: Router) { }
   username; error;
 
   ngOnInit() {
@@ -18,10 +18,10 @@ export class DashboardComponent implements OnInit {
 
   logout() {
     this.httpCLient.logout().subscribe(() => {
-      //TODO delete cookies 
-     });
+      document.cookie = 'followThePlaneCookie=; Max-Age=0'
+      this.router.navigateByUrl('/');
+    });
   }
-
 
   getUser(): void {
     this.httpCLient.getCurrentUser().subscribe(userInfo => {

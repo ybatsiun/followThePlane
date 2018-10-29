@@ -21,7 +21,6 @@ export class HttpClientService {
   constructor(private http: HttpClient) { }
 
   getHelloMessage() {
-    console.log('getting hello message from be');
     return this.http.get(this.beHost + '/');
   }
 
@@ -60,4 +59,10 @@ export class HttpClientService {
       return of(error as T);
     };
   };
+
+  public getCookie(name) {
+    const value = "; " + document.cookie;
+    const parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+  }
 }

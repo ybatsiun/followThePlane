@@ -100,17 +100,17 @@ UserSchema.methods.removeToken = function (token) {
   });
 };
 
-UserSchema.methods.addIcaoNumber = function (icaoNumber) {
+UserSchema.methods.addIcaoNumber = function (planeObj) {
   const user = this;
   let isIcaoAlreadyExist = false;
-  user.planes.forEach(plane => {
-    if (plane.icao == icaoNumber) {
+  user.planes.forEach(planeInTheList => {
+    if (planeInTheList.icao == planeObj.icao) {
       isIcaoAlreadyExist = true;
       return;
     }
   });
   if (!isIcaoAlreadyExist) {
-    user.planes.push({ icao: icaoNumber });
+    user.planes.push(planeObj);
     return user.save().then(() => {
       return user.planes.slice(-1)[0]._id.toHexString();
     });

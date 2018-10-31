@@ -95,8 +95,9 @@ authRouter.get('/icaoList', getAllStates, (req, res, next) => {
 });
 authRouter.post('/addIcao/:icao', (req, res, next) => {
     const icao = req.params.icao;
+    const originCountry = req.params.originCountry || 'country is not specified';
     var user = new User(req.user);
-    user.addIcaoNumber(icao).then(icaoDocumentID => {
+    user.addIcaoNumber({ icao, originCountry }).then(icaoDocumentID => {
         const planeStates = new PlaneStates({ planeID: icaoDocumentID });
         planeStates.save().then(() => {
             res.send({ message: `${icao} was successfully added to your profile.` });
@@ -164,7 +165,7 @@ authRouter.get('/getPlaneInfo/:planeId', async (req, res, next) => {
     });
 });
 
-function setAccessHeaders(res){
+function setAccessHeaders(res) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', '*');
     res.header('Access-Control-Allow-Headers', '*');

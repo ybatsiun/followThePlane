@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const Plane = new mongoose.Schema({
-    icao: String
+    icao: String,
+    originCountry: String
 });
 
 module.exports = Plane;

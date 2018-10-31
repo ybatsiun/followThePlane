@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClientService } from '../http-client.service';
+
 
 @Component({
   selector: 'app-planes-list',
@@ -7,9 +9,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PlanesListComponent implements OnInit {
 
-  constructor() { }
-
+  constructor(private httpCLient: HttpClientService) { }
+  planesList;
   ngOnInit() {
+    this.httpCLient.getPlanesList().subscribe(data => {
+      this.planesList = data;
+    })
   }
 
 }

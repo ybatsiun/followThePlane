@@ -15,7 +15,8 @@ export class HttpClientService {
     login: '/login',
     logout: '/authenticated/logout',
     register: '/register',
-    currentUser: '/authenticated/me'
+    currentUser: '/authenticated/me',
+    planesList: '/authenticated/getMyIcaoList'
   };
 
   constructor(private http: HttpClient) { }
@@ -43,6 +44,12 @@ export class HttpClientService {
       catchError(this.handleError<any>())
     );
   };
+
+  getPlanesList(): Observable<any> {
+    return this.http.get<any>(this.beHost + this.routes.planesList).pipe(
+      catchError(this.handleError<any>())
+    )
+  }
 
   private userInfoAction(userLoginInfo: any, route: string): Observable<any> {
     return this.http.post<UserLoginInfo>(this.beHost + route, {

@@ -12,7 +12,6 @@ import { Router } from "@angular/router";
 export class LoginFormComponent implements OnInit {
 
   ngOnInit(): void {
-    debugger
     if (this.getCookie('followThePlaneCookie')) {
       this.router.navigateByUrl('/myPlaneList');
     }

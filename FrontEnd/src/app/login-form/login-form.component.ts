@@ -14,7 +14,7 @@ export class LoginFormComponent implements OnInit {
   ngOnInit(): void {
     debugger
     if (this.getCookie('followThePlaneCookie')) {
-      this.router.navigateByUrl('/welcome');
+      this.router.navigateByUrl('/myPlaneList');
     }
   }
   constructor(private httpCLient: HttpClientService, private router: Router) {
@@ -40,7 +40,7 @@ export class LoginFormComponent implements OnInit {
         } else {
           this.model.error = "";
           document.cookie = `followThePlaneCookie=${userLoginInfo.tokens.slice(-1)[0].token}`;
-          this.router.navigateByUrl('/welcome');
+          this.router.navigateByUrl('/myPlaneList');
         };
       });
   }

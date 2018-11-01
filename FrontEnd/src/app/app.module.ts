@@ -12,6 +12,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { PlanesListComponent } from './planes-list/planes-list.component';
 import { AvailablePlanesComponent } from './available-planes/available-planes.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { PlanesDetailComponent } from './planes-detail/planes-detail.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     DashboardComponent,
     PlanesListComponent,
     AvailablePlanesComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    PlanesDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -112,7 +112,7 @@ authRouter.get('/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then(icaoList => {
         const icaoListFormatted = [];
         for (const icaoObj of icaoList) {
-            icaoListFormatted.push({ icao: icaoObj.icao, originCountry: icaoObj.originCountry });
+            icaoListFormatted.push({ icao: icaoObj.icao, originCountry: icaoObj.originCountry, id: icaoObj._id });
         };
         res.send({ icaoList: icaoListFormatted });
     }).catch(e => {

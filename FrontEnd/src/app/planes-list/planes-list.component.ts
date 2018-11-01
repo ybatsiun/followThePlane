@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClientService } from '../http-client.service';
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-planes-list',
@@ -8,7 +9,7 @@ import { HttpClientService } from '../http-client.service';
 })
 export class PlanesListComponent implements OnInit {
 
-  constructor(private httpCLient: HttpClientService) { }
+  constructor(private httpCLient: HttpClientService, private router: Router) { }
 
   settings = {
     mode: 'external',
@@ -39,5 +40,9 @@ export class PlanesListComponent implements OnInit {
     this.httpCLient.deleteIcao(event.data.icao).subscribe(function () {
       this.ngOnInit();
     }.bind(this))
+  }
+
+  onUserRowSelect(event) {
+    this.router.navigateByUrl('/planeDetailView/' + event.data.id)
   }
 }

@@ -1,10 +1,6 @@
 <p>
-  planes-list works!
+  click row to see the details
 </p>
 
-<ng2-smart-table 
-    [settings]="settings" 
-    [source]="planesList"
-    (delete)="onDelete($event)"
-    >
+<ng2-smart-table [settings]="settings" [source]="planesList" (delete)="onDelete($event)" (userRowSelect)="onUserRowSelect($event)">
 </ng2-smart-table>

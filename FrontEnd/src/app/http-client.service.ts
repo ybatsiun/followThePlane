@@ -11,12 +11,14 @@ import { catchError, map, tap } from 'rxjs/operators';
 })
 export class HttpClientService {
   private beHost = 'http://localhost:3000';
+  private auth = '/authenticated'
   private routes = {
     login: '/login',
-    logout: '/authenticated/logout',
     register: '/register',
-    currentUser: '/authenticated/me',
-    planesList: '/authenticated/getMyIcaoList'
+    logout: `${this.auth}/logout`,
+    currentUser: `${this.auth}/me`,
+    planesList: `${this.auth}/getMyIcaoList`,
+    deleteIcao: `${this.auth}/deleteIcao`
   };
 
   constructor(private http: HttpClient) { }
@@ -47,6 +49,12 @@ export class HttpClientService {
 
   getPlanesList(): Observable<any> {
     return this.http.get<any>(this.beHost + this.routes.planesList).pipe(
+      catchError(this.handleError<any>())
+    )
+  }
+
+  deleteIcao(icao): Observable<any> {
+    return this.http.delete<any>(this.beHost + this.routes.deleteIcao + '/' + icao).pipe(
       catchError(this.handleError<any>())
     )
   }

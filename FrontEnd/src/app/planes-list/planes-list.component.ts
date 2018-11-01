@@ -9,8 +9,9 @@ import { HttpClientService } from '../http-client.service';
 export class PlanesListComponent implements OnInit {
 
   constructor(private httpCLient: HttpClientService) { }
-  
+
   settings = {
+    mode: 'external',
     columns: {
       icao: {
         title: 'icao'
@@ -18,14 +19,25 @@ export class PlanesListComponent implements OnInit {
       originCountry: {
         title: 'origin country'
       }
+    },
+    editable: false,
+    noDataMessage: 'there are no planes in your list',
+    actions: {
+      edit: false, add: false, position: 'right', columnTitle: ''
     }
   };
 
-  
+
   planesList;
   ngOnInit() {
     this.httpCLient.getPlanesList().subscribe(data => {
       this.planesList = data.icaoList;
     })
+  }
+
+  onDelete(event) {
+    this.httpCLient.deleteIcao(event.data.icao).subscribe(function () {
+      this.ngOnInit();
+    }.bind(this))
   }
 }

@@ -4,5 +4,7 @@
 
 <ng2-smart-table 
     [settings]="settings" 
-    [source]="planesList">
+    [source]="planesList"
+    (delete)="onDelete($event)"
+    >
 </ng2-smart-table>

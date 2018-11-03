@@ -10,9 +10,9 @@ module.exports = {
     getStateByIcao: (icao) => {
         return new Promise((resolve, reject) => {
             https.get(`${baseUrl}${getAll}?icao24=${icao}`, res => {
-                const h_helper = new http_service();
-                h_helper.validateResponse(res);
-                return h_helper.processResponse(res).then(processedData => {
+                const httpService = new http_service();
+                httpService.validateResponse(res);
+                return httpService.processResponse(res).then(processedData => {
                     if (processedData.states !== null) {
                         resolve(processedData.states[0]);
                     } else {

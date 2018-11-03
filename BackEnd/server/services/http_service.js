@@ -1,4 +1,4 @@
-class HttpHelper {
+class HttpService {
     validateResponse(res) {
         const { statusCode } = res;
         const contentType = res.headers['content-type'];
@@ -41,4 +41,4 @@ class HttpHelper {
     }
 }
 
-module.exports = HttpHelper;
+module.exports = HttpService;

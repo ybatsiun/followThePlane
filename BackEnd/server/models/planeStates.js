@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
 const Trip = require('./trip.js');
+const reverseGeoCodeService = require('../services/reverse_geo_coding_service');
 
 const DEFAULT_NAMES = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
     'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
@@ -57,9 +58,27 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
     if (singlePlaneData[DEFAULT_NAMES[8]] && await isCurrentTripContainsData()) {
+        const tripObj = await this.findOne({ planeID: planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
+        const { currentTripIndex } = tripObj;
+        const { trips } = tripObj;
+        const firstSpotInTrip = trips[currentTripIndex].tripData[0];
+        const lastSpotInTrip = trips[currentTripIndex].tripData.slice(-1)[0];
+
+        const promises = [];
+        promises.push(
+            reverseGeoCodeService.getPlaceByGeoCoordinates(firstSpotInTrip.latitude, firstSpotInTrip.longitude));
+        promises.push(
+            reverseGeoCodeService.getPlaceByGeoCoordinates(lastSpotInTrip.latitude, lastSpotInTrip.longitude));
+        const locations = await Promise.all(promises);
+
+        const q = {};
+        q[`trips.${currentTripIndex}.finishLocationObj`] = locations[0].results[0].locations;
+        q[`trips.${currentTripIndex}.startLocationObj`] = locations[1].results[0].locations;
+        q.currentTripIndex = currentTripIndex + 1;
+
         return this.update(
             { planeID: planeId },
-            { $set: { currentTripIndex: currentTripIndex + 1 } }
+            { $set: q },
         );
     }
     // record every time the plane is not on the ground

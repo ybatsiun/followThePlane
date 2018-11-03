@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
 const Trip = require('./trip.js');
 
+const DEFAULT_NAMES = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
+    'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
+    'spi', 'position_source'];
+
 const planeStatesSchema = new mongoose.Schema({
     planeID: String,
     currentTripIndex: { type: Number, default: 0 },
@@ -33,12 +37,10 @@ planeStatesSchema.statics.getTripsByPlaneId = async function (planeID) {
 }
 
 planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
-    const dafaultNames = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
-        'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
-        'spi', 'position_source'];
+
     const singlePlaneData = {};
-    for (let i = 0; i < dafaultNames.length - 1; i++) {
-        singlePlaneData[dafaultNames[i]] = data[i];
+    for (let i = 0; i < DEFAULT_NAMES.length - 1; i++) {
+        singlePlaneData[DEFAULT_NAMES[i]] = data[i];
     };
     const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
     const isCurrentTripContainsData = () => {
@@ -47,12 +49,21 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         });
     };
 
-    if (singlePlaneData[dafaultNames[0]] == 'NO DATA' && await isCurrentTripContainsData()) {
+    // don't record it 
+    if (singlePlaneData[0] == 'NO DATA') {
+        return
+    }
+
+    // plane landed, current trip, that contains some data is ended 
+    // and current trip index should be incremented on one 
+    if (singlePlaneData[DEFAULT_NAMES[8]] && await isCurrentTripContainsData()) {
         return this.update(
             { planeID: planeId },
             { $set: { currentTripIndex: currentTripIndex + 1 } }
         );
-    } else if (singlePlaneData[dafaultNames[0]] !== 'NO DATA') {
+    }
+    // record every time the plane is not on the ground
+    else if (!singlePlaneData[DEFAULT_NAMES[8]]) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const query = {};
         query[currentTripKey] = singlePlaneData;
@@ -61,8 +72,6 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
             { $push: query }
         );
         return this.calculateAvarageValues(planeId);
-    } else {
-        //current trip is empty and current trip index doesn't have to be incremented
     }
 }
 

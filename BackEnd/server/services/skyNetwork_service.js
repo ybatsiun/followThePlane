@@ -1,7 +1,7 @@
 const https = require('https');
 const baseUrl = 'https://opensky-network.org/api';
 const getAll = '/states/all';
-const http_helper = require('./http_helper');
+const http_service = require('./http_service');
 const PlaneStates = require('../models/planeStates');
 const User = require('../models/user');
 const dateFormat = require('dateformat');
@@ -10,7 +10,7 @@ module.exports = {
     getStateByIcao: (icao) => {
         return new Promise((resolve, reject) => {
             https.get(`${baseUrl}${getAll}?icao24=${icao}`, res => {
-                const h_helper = new http_helper();
+                const h_helper = new http_service();
                 h_helper.validateResponse(res);
                 return h_helper.processResponse(res).then(processedData => {
                     if (processedData.states !== null) {

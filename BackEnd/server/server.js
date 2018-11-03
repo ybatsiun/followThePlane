@@ -10,7 +10,7 @@ const PlaneStates = require('./models/planeStates');
 const { authenticate } = require('./middleware/authenticate');
 const { getAllStates } = require('./middleware/skyNetworkApi/api');
 const { getStateByIcao } = require('./middleware/skyNetworkApi/api');
-const skyNetwork_helper = require('./helpers/skyNetwork_helper');
+const skyNetwork_service = require('./services/skyNetwork_service');
 const _ = require('lodash');
 const app = express();
 const port = process.env.PORT;
@@ -37,7 +37,7 @@ app.listen(port, () => {
 //background process to update plains info
 const updateInterval = 5;//mins
 setInterval(() => {
-    skyNetwork_helper.fetchPlanesData();
+    skyNetwork_service.fetchPlanesData();
 }, updateInterval * 60 * 1000);
 
 app.get('/', (req, res) => {

@@ -4,7 +4,7 @@ const { ObjectID } = require('mongodb');
 
 const app = require('./../server');
 const User = require('../models/user');
-const auth_helper = require('./helpers/authentication_helper.js');
+const auth_helper = require('./services/authentication_helper.js');
 
 
 describe('Authentication Suite', function () {

@@ -53,8 +53,8 @@ export class HttpClientService {
     )
   }
 
-  deleteIcao(icao): Observable<any> {
-    return this.http.delete<any>(this.beHost + this.routes.deleteIcao + '/' + icao).pipe(
+  deleteIcao(planeId): Observable<any> {
+    return this.http.delete<any>(this.beHost + this.routes.deleteIcao + '/' + planeId).pipe(
       catchError(this.handleError<any>())
     )
   }

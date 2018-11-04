@@ -76,7 +76,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const query = {};
         query[currentTripKey] = data;
-        q.onGround = false;
+        query.onGround = false;
         await this.update(
             planeId,
             { $push: query }

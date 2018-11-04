@@ -19,6 +19,12 @@ export class PlanesListComponent implements OnInit {
       },
       originCountry: {
         title: 'origin country'
+      },
+      onGround: {
+        title: 'is the plane on the ground'
+      },
+      _id: {
+        title: 'TODO make it invisible'
       }
     },
     editable: false,
@@ -32,12 +38,12 @@ export class PlanesListComponent implements OnInit {
   planesList;
   ngOnInit() {
     this.httpCLient.getPlanesList().subscribe(data => {
-      this.planesList = data.icaoList;
+      this.planesList = data;
     })
   }
 
   onDelete(event) {
-    this.httpCLient.deleteIcao(event.data.icao).subscribe(function () {
+    this.httpCLient.deleteIcao(event.data._id).subscribe(function () {
       this.ngOnInit();
     }.bind(this))
   }

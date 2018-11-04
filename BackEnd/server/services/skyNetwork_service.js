@@ -1,25 +1,32 @@
 const https = require('https');
-const baseUrl = 'https://opensky-network.org/api';
-const getAll = '/states/all';
+const dateFormat = require('dateformat');
+
 const http_service = require('./http_service');
 const PlaneStates = require('../models/planeStates');
 const User = require('../models/user');
-const dateFormat = require('dateformat');
+
+
+const BASE_URL = 'https://opensky-network.org/api';
+const GET_ALL = '/states/all';
+const DEFAULT_NAMES = ['icao', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
+    'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
+    'spi', 'position_source'];
 
 module.exports = {
     getStateByIcao: (icao) => {
         return new Promise((resolve, reject) => {
-            https.get(`${baseUrl}${getAll}?icao24=${icao}`, res => {
+            https.get(`${BASE_URL}${GET_ALL}?icao24=${icao}`, res => {
                 const httpService = new http_service();
                 httpService.validateResponse(res);
                 return httpService.processResponse(res).then(processedData => {
-                    if (processedData.states !== null) {
-                        resolve(processedData.states[0]);
+                    if (processedData.states == null) {
+                        resolve(processedData.states);
                     } else {
-                        //TODO fix 'NO DATA' fill, check just if the array contains smth
-                        //if there is no data about the plane
-                        const noDataArray = new Array(17);
-                        resolve(noDataArray.fill('NO DATA', 0, 17))
+                        const planeData = {};
+                        for (let i = 0; i < DEFAULT_NAMES.length - 1; i++) {
+                            planeData[DEFAULT_NAMES[i]] = processedData.states[0][i];
+                        };
+                        resolve(planeData);
                     }
                 });
             }).on('error', (e) => {

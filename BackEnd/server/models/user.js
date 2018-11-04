@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Plane = require('./plane.js');
+const PlaneStates = require('./planeStates');
 const { ObjectID } = require('mongodb');
 
 var UserSchema = new mongoose.Schema({
@@ -100,23 +101,23 @@ UserSchema.methods.removeToken = function (token) {
   });
 };
 
-UserSchema.methods.addIcaoNumber = function (planeObj) {
+UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
   const user = this;
-  let isIcaoAlreadyExist = false;
-  user.planes.forEach(planeInTheList => {
-    if (planeInTheList.icao == planeObj.icao) {
-      isIcaoAlreadyExist = true;
-      return;
-    }
+  for (const planeIdInTheList of user.planes) {
+    const userListPlane = await PlaneStates.findByDefaultId(planeIdInTheList._id);
+    const userListPlaneIcao = userListPlane.icao;
+
+    if (userListPlaneIcao == newIcaoObj.icao) return Promise.reject(`${newIcaoObj.icao} already existis`);
+  }
+
+  const planeStates = new PlaneStates();
+  planeStates.originCountry = newIcaoObj.originCountry;
+  planeStates.icao = newIcaoObj.icao;
+  const planeStatesId = await planeStates.save();
+  user.planes.push(planeStatesId._id);
+  return user.save().catch(e => {
+    console.err('adding plane id: ', e);
   });
-  if (!isIcaoAlreadyExist) {
-    user.planes.push(planeObj);
-    return user.save().then(() => {
-      return user.planes.slice(-1)[0]._id.toHexString();
-    });
-  } else {
-    return Promise.reject('This icao number already existis');
-  };
 };
 
 UserSchema.methods.deleteIcaoNumber = function (icao) {

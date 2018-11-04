@@ -93,20 +93,21 @@ authRouter.get('/icaoList', getAllStates, (req, res, next) => {
     }, []);
     res.send(icaoNumbersList);
 });
-authRouter.post('/addIcao/:icao', (req, res, next) => {
+//can be added only from available planes
+authRouter.post('/addIcao/:icao', async (req, res, next) => {
     const icao = req.params.icao;
-    const originCountry = req.params.originCountry || 'country is not specified';
-    var user = new User(req.user);
-    user.addIcaoNumber({ icao, originCountry }).then(icaoDocumentID => {
-        const planeStates = new PlaneStates({ planeID: icaoDocumentID });
-        planeStates.save().then(() => {
-            res.send({ message: `${icao} was successfully added to your profile.` });
-        }).catch(e => {
-            res.status(400).send(e);
-        });
+    const currentState = await skyNetwork_service.getStateByIcao(icao);
+    const user = new User(req.user);
+    
+    if (!currentState) return res.status(400).send(`${icao} is not available anymore`)
+    
+    user.addIcaoObj(
+        { icao, originCountry: currentState.originCountry }
+    ).then(() => {
+        res.send({ message: `${icao} was successfully added to your profile.` });
     }).catch(e => {
         res.status(400).send(e);
-    });
+    })
 });
 authRouter.get('/getMyIcaoList', (req, res, next) => {
     User.getIcaoList(req.user.username).then(icaoList => {

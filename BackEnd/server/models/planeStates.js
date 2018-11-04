@@ -3,13 +3,10 @@ const { ObjectID } = require('mongodb');
 const Trip = require('./trip.js');
 const reverseGeoCodeService = require('../services/reverse_geo_coding_service');
 
-const DEFAULT_NAMES = ['icao24', 'callsign', 'origin_country', 'time_position', 'last_contact', 'longitude',
-    'latitude', 'geo_altitude', 'on_ground', 'velocity', 'heading', 'vertical_rate', 'sensors', 'baro_altitude', 'squawk',
-    'spi', 'position_source'];
-
 const planeStatesSchema = new mongoose.Schema({
-    planeID: String,
     currentTripIndex: { type: Number, default: 0 },
+    icao: String,
+    originCountry: String,
     trips: [Trip]
 });
 
@@ -27,6 +24,13 @@ planeStatesSchema.statics.findByPlaneId = function (planeId) {
         return plane;
     });
 }
+
+planeStatesSchema.statics.findByDefaultId = function (planeId) {
+    return this.findOne(ObjectID(planeId)).then(plane => {
+        return plane;
+    });
+}
+
 planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
     return this.deleteOne({ planeID });
 }
@@ -39,25 +43,18 @@ planeStatesSchema.statics.getTripsByPlaneId = async function (planeID) {
 
 planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
 
-    const singlePlaneData = {};
-    for (let i = 0; i < DEFAULT_NAMES.length - 1; i++) {
-        singlePlaneData[DEFAULT_NAMES[i]] = data[i];
-    };
     const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
     const isCurrentTripContainsData = () => {
         return this.findOne({ planeID: planeId }).then(plane => {
             return plane.trips[plane.currentTripIndex] !== undefined;
         });
     };
-
     // don't record it 
-    if (singlePlaneData[0] == 'NO DATA') {
-        return
-    }
+    if (!data) return
 
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
-    if (singlePlaneData[DEFAULT_NAMES[8]] && await isCurrentTripContainsData()) {
+    if (data.on_ground && await isCurrentTripContainsData()) {
         const tripObj = await this.findOne({ planeID: planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
         const { currentTripIndex } = tripObj;
         const { trips } = tripObj;
@@ -82,10 +79,10 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         );
     }
     // record every time the plane is not on the ground
-    else if (!singlePlaneData[DEFAULT_NAMES[8]]) {
+    else if (!data.on_ground) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const query = {};
-        query[currentTripKey] = singlePlaneData;
+        query[currentTripKey] = data;
         await this.update(
             { planeID: planeId },
             { $push: query }

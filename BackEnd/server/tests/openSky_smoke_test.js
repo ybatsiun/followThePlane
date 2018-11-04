@@ -48,10 +48,8 @@ describe('Open sky network. Smoke', function () {
             User.find({ username: user.username }).then(user => {
                 expect(user[0].planes.length).to.be(1);
                 const targetPlaneId = user[0].planes[0]._id.toHexString();
-                PlainState.find({ planeID: targetPlaneId }).then(plainState => {
-                    expect(plainState[0].trips.length).to.be(0);
-                    done();
-                });
+
+                done();
             });
         });
     });

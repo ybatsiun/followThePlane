@@ -109,7 +109,7 @@ authRouter.post('/addIcao/:icao', async (req, res, next) => {
         res.status(400).send(e);
     })
 });
-authRouter.get('/getMyIcaoList', (req, res, next) => {
+authRouter.get('/getMyIcaoList',async (req, res, next) => {
     User.getIcaoList(req.user.username).then(icaoList => {
         const icaoListFormatted = [];
         for (const icaoObj of icaoList) {
@@ -120,15 +120,15 @@ authRouter.get('/getMyIcaoList', (req, res, next) => {
         res.status(400).send(e.message);
     });
 });
-authRouter.delete('/deleteIcao/:icao', async (req, res, next) => {
-    const icaoToDelete = req.params.icao;
+authRouter.delete('/deleteIcao/:planeId', async (req, res, next) => {
+    const planeId = req.params.planeId;
     var user = new User(req.user);
-    const planeToDelete = user.planes.find(element => element.icao == icaoToDelete);
+    const planeToDelete = user.planes.find(element => element.id == planeId);
     if (planeToDelete) {
         try {
-            await PlaneStates.deleteByPlaneId(planeToDelete._id.toHexString());
-            await user.deleteIcaoNumber(planeToDelete.icao);
-            res.send({ message: `plain with icao number ${icaoToDelete} and it's travel history was removed from your list` });
+            await PlaneStates.deleteByPlaneId(planeId);
+            await user.deletePlaneId(planeId);
+            res.send({ message: `plain with id ${planeId} and it's travel history was removed from your list` });
         } catch (e) {
             res.status(400).send(e.message);
         };

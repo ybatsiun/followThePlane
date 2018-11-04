@@ -11,51 +11,44 @@ const planeStatesSchema = new mongoose.Schema({
 });
 
 planeStatesSchema.statics.getCurrentTripIndexByPlaneId = function (planeId) {
-    return this.findOne({ planeID: planeId }).then(plane => {
+    return this.findOne(planeId).then(plane => {
         return plane.currentTripIndex;
     });
 }
 planeStatesSchema.statics.getAllIds = function () {
-    return this.find({}, { planeID: 1 });
+    return this.find({}, { _id: 1 });
 
 }
-planeStatesSchema.statics.findByPlaneId = function (planeId) {
-    return this.findOne({ planeID: planeId }).then(plane => {
-        return plane;
-    });
-}
 
-planeStatesSchema.statics.findByDefaultId = function (planeId) {
-    return this.findOne(ObjectID(planeId)).then(plane => {
+planeStatesSchema.statics.findByDefaultId = function (planeID) {
+    return this.findOne(planeID).then(plane => {
         return plane;
     });
 }
 
 planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
-    return this.deleteOne({ planeID });
+    return this.deleteOne({ _id: ObjectID(planeID) });
 }
 
 planeStatesSchema.statics.getTripsByPlaneId = async function (planeID) {
-    return this.findOne({ planeID });
+    return this.findOne(planeID, { trips: 1 });
     //TODO isCurrent vs. isLastTrip
     //planeObj[currentTripIndex].isCurrent = true;
 }
 
 planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
+    const planeObj = await this.findByDefaultId(planeId);
+    const { currentTripIndex } = planeObj;
 
-    const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
-    const isCurrentTripContainsData = () => {
-        return this.findOne({ planeID: planeId }).then(plane => {
-            return plane.trips[plane.currentTripIndex] !== undefined;
-        });
-    };
+    const isCurrentTripContainsData = planeObj.trips[currentTripIndex] !== undefined;
+
     // don't record it 
     if (!data) return
 
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
     if (data.on_ground && await isCurrentTripContainsData()) {
-        const tripObj = await this.findOne({ planeID: planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
+        const tripObj = await this.findOne({ planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
         const { currentTripIndex } = tripObj;
         const { trips } = tripObj;
         const firstSpotInTrip = trips[currentTripIndex].tripData[0];
@@ -74,7 +67,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         q.currentTripIndex = currentTripIndex + 1;
 
         return this.update(
-            { planeID: planeId },
+            { planeId },
             { $set: q },
         );
     }
@@ -84,7 +77,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const query = {};
         query[currentTripKey] = data;
         await this.update(
-            { planeID: planeId },
+            planeId,
             { $push: query }
         );
         return this.calculateAvarageValues(planeId);
@@ -93,8 +86,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
 
 planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
-
-    const tripDataQuery = await this.findOne({ planeID: planeId });
+    const tripDataQuery = await this.findByDefaultId(planeId);
     const tripData = tripDataQuery.trips[currentTripIndex].tripData;
     const tripDataLength = tripData.length;
     const velocitySum = tripData.reduce((accumulator, currentValue) => {
@@ -110,21 +102,19 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
 
     return this.update(
-        { planeID: planeId },
+        planeId,
         { $set: query }
     );
 }
 
 planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
-    const plane = await this.findOne({ planeID: planeId });
+    const plane = await this.findOne(planeId);
     try {
         return plane.trips[plane.currentTripIndex].tripData.slice(-1);
     } catch (e) {
         return [{ message: 'The plain is on the ground' }];
     }
 }
-
-
 
 const planeStates = mongoose.model('planeStates', planeStatesSchema);
 module.exports = planeStates;

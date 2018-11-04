@@ -104,7 +104,7 @@ UserSchema.methods.removeToken = function (token) {
 UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
   const user = this;
   for (const planeIdInTheList of user.planes) {
-    const userListPlane = await PlaneStates.findByDefaultId(planeIdInTheList._id);
+    const userListPlane = await PlaneStates.findByDefaultId(planeIdInTheList);
     const userListPlaneIcao = userListPlane.icao;
 
     if (userListPlaneIcao == newIcaoObj.icao) return Promise.reject(`${newIcaoObj.icao} already existis`);
@@ -120,11 +120,11 @@ UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
   });
 };
 
-UserSchema.methods.deleteIcaoNumber = function (icao) {
+UserSchema.methods.deletePlaneId = function (planeId) {
   const user = this;
-  return user.update({
+  return user.update( {
     $pull: {
-      planes: { icao }
+      planes: { _id: ObjectID(planeId) }
     }
   });
 };

@@ -37,11 +37,11 @@ module.exports = {
 
     fetchPlanesData: async function fetchPlanesData() {
         const planeStateList = await PlaneStates.getAllIds();
-        for (const planeState of planeStateList) {
-            const icao = await User.getIcaoByPlaneID(planeState.planeID);
+        for (const planeId of planeStateList) {
+            const { icao } = await PlaneStates.findByDefaultId(planeId);
             const states = await this.getStateByIcao(icao);
             console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
-            await PlaneStates.writeDataByPlaneId(planeState.planeID, states);
+            await PlaneStates.writeDataByPlaneId(planeId, states);
         };
     }
 }

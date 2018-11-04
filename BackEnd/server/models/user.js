@@ -111,7 +111,7 @@ UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
   }
 
   const planeStates = new PlaneStates();
-  planeStates.originCountry = newIcaoObj.originCountry;
+  planeStates.originCountry = newIcaoObj.origin_country;
   planeStates.icao = newIcaoObj.icao;
   const planeStatesId = await planeStates.save();
   user.planes.push(planeStatesId._id);
@@ -122,7 +122,7 @@ UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
 
 UserSchema.methods.deletePlaneId = function (planeId) {
   const user = this;
-  return user.update( {
+  return user.update({
     $pull: {
       planes: { _id: ObjectID(planeId) }
     }
@@ -155,12 +155,8 @@ UserSchema.statics.getIcaoByPlaneID = async function (planeID) {
 
 UserSchema.statics.getIcaoList = function (username) {
   const User = this;
-  return User.findOne({ username }).then(user => {
-    const icaoList_formatted = [];
-    for (const planeObj of user.planes) {
-      icaoList_formatted.push(planeObj);
-    };
-    return icaoList_formatted;
+  return User.findOne({ username }, { planes: 1 }).then(data => {
+    return data.planes;
   })
 };
 

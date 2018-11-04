@@ -98,24 +98,25 @@ authRouter.post('/addIcao/:icao', async (req, res, next) => {
     const icao = req.params.icao;
     const currentState = await skyNetwork_service.getStateByIcao(icao);
     const user = new User(req.user);
-    
     if (!currentState) return res.status(400).send(`${icao} is not available anymore`)
-    
     user.addIcaoObj(
-        { icao, originCountry: currentState.originCountry }
+        { icao, origin_country: currentState.origin_country }
     ).then(() => {
         res.send({ message: `${icao} was successfully added to your profile.` });
     }).catch(e => {
         res.status(400).send(e);
     })
 });
-authRouter.get('/getMyIcaoList',async (req, res, next) => {
-    User.getIcaoList(req.user.username).then(icaoList => {
-        const icaoListFormatted = [];
-        for (const icaoObj of icaoList) {
-            icaoListFormatted.push({ icao: icaoObj.icao, originCountry: icaoObj.originCountry, id: icaoObj._id });
+authRouter.get('/getMyIcaoList', async (req, res, next) => {
+
+    User.getIcaoList(req.user.username).then(async planeIdList => {
+        const list = [];
+
+        for (const planeId of planeIdList) {
+            const { originCountry, _id, icao, onGround } = await PlaneStates.findByDefaultId(planeId._id);
+            list.push({ originCountry, _id, icao, onGround });
         };
-        res.send({ icaoList: icaoListFormatted });
+        res.send(list);
     }).catch(e => {
         res.status(400).send(e.message);
     });
@@ -136,6 +137,7 @@ authRouter.delete('/deleteIcao/:planeId', async (req, res, next) => {
         res.status(400).send("Plane was not found in users plain list");
     };
 })
+//TODO refactor
 //see the current plane info from users list
 authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
     const icaoList = await User.getIcaoList(req.user.username);

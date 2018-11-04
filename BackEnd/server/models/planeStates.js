@@ -7,6 +7,7 @@ const planeStatesSchema = new mongoose.Schema({
     currentTripIndex: { type: Number, default: 0 },
     icao: String,
     originCountry: String,
+    onGround: { type: Boolean, default: false },
     trips: [Trip]
 });
 
@@ -21,9 +22,7 @@ planeStatesSchema.statics.getAllIds = function () {
 }
 
 planeStatesSchema.statics.findByDefaultId = function (planeID) {
-    return this.findOne(planeID).then(plane => {
-        return plane;
-    });
+    return this.findOne(planeID);
 }
 
 planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
@@ -65,6 +64,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         q[`trips.${currentTripIndex}.finishLocationObj`] = locations[0].results[0].locations;
         q[`trips.${currentTripIndex}.startLocationObj`] = locations[1].results[0].locations;
         q.currentTripIndex = currentTripIndex + 1;
+        q.onGround = true;
 
         return this.update(
             { planeId },
@@ -76,6 +76,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const query = {};
         query[currentTripKey] = data;
+        q.onGround = false;
         await this.update(
             planeId,
             { $push: query }
@@ -108,7 +109,7 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
 }
 
 planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
-    const plane = await this.findOne(planeId);
+    const plane = await this.findOne(planeId._id);
     try {
         return plane.trips[plane.currentTripIndex].tripData.slice(-1);
     } catch (e) {

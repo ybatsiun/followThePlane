@@ -41,13 +41,12 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     const { currentTripIndex } = planeObj;
 
     const isCurrentTripContainsData = planeObj.trips[currentTripIndex] !== undefined;
-
     // don't record it 
     if (!data) return
 
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
-    if (data.on_ground && await isCurrentTripContainsData()) {
+    if (data.on_ground && await isCurrentTripContainsData) {
         const tripObj = await this.findOne({ planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
         const { currentTripIndex } = tripObj;
         const { trips } = tripObj;
@@ -108,7 +107,7 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     query[currentTripKey + '.avarageVelocity'] = velocitySum / tripDataLength;
     query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
     query[currentTripKey + '.flightTime'] = msToTime(
-        lastSpotInTrip.time_position - firstSpotInTrip.time_position);
+        lastSpotInTrip.last_contact - firstSpotInTrip.last_contact);
 
     return this.update(
         planeId,

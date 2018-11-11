@@ -1,6 +1,6 @@
 "use strict"
 require('./config/config');
-
+const UPDATE_INTERVAL = 5;//mins
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
@@ -35,10 +35,9 @@ app.listen(port, () => {
 });
 
 //background process to update plains info
-const updateInterval = 5;//mins
 setInterval(() => {
     skyNetwork_service.fetchPlanesData();
-}, updateInterval * 60 * 1000);
+}, UPDATE_INTERVAL * 60 * 1000);
 
 app.get('/', (req, res) => {
     res.send({
@@ -137,29 +136,20 @@ authRouter.delete('/deleteIcao/:planeId', async (req, res, next) => {
         res.status(400).send("Plane was not found in users plain list");
     };
 })
-//TODO refactor
 //see the current plane info from users list
 authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
-    const icaoList = await User.getIcaoList(req.user.username);
-    const planeIds = getUserPlaneIds();
+    const planeIdArray = await User.getIcaoList(req.user.username);
     const planesCurrentData = [];
-    for (const icao in planeIds) {
+    for (let i = 0; i < planeIdArray.length; i++) {
         let planeData = {};
-        planeData.id = planeIds[icao];
-
-        const planeStates = await PlaneStates.getCurrentStateByPlaneId(planeIds[icao]);
-        planeData = { ...planeData, ...planeStates[0] };
+        const { icao } = await PlaneStates.findByDefaultId(planeIdArray[i]._id);
+        const currentPlaneState = await PlaneStates.getCurrentStateByPlaneId(planeIdArray[i]._id);
+        const tripsData = await PlaneStates.getTripsData(planeIdArray[i]._id);
+        
+        planeData = { icao, tripsData,currentPlaneState };
         planesCurrentData.push(planeData);
     }
     res.send({ planesCurrentData });
-
-    function getUserPlaneIds() {
-        const planeDataObj = {};
-        for (const icaoObj of icaoList) {
-            planeDataObj[icaoObj.icao] = icaoObj.id;
-        };
-        return planeDataObj;
-    };
 });
 
 authRouter.get('/getPlaneInfo/:planeId', async (req, res, next) => {

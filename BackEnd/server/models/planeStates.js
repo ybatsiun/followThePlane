@@ -117,12 +117,22 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
 }
 
 planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
-    const plane = await this.findOne(planeId._id);
+    const plane = await this.findByDefaultId(planeId._id);
     try {
         return plane.trips[plane.currentTripIndex].tripData.slice(-1);
     } catch (e) {
         return [{ message: 'The plain is on the ground' }];
     }
+}
+
+planeStatesSchema.statics.getTripsData = async function (planeId) {
+
+    const tripObj = await this.find(planeId, { trips: 1 });
+    //delete tripRecordData to minimize object sent to client;
+    for (let i = 0; i < tripObj[0].trips.length; i++) {
+        tripObj[0].trips[i].tripData = null;
+    }
+    return tripObj[0].trips;
 }
 
 function msToTime(s) {

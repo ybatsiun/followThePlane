@@ -1,3 +1,4 @@
+const MILISECONDS_IN_HOUR = 3600000;
 const mongoose = require('mongoose');
 const { ObjectID } = require('mongodb');
 const Trip = require('./trip.js');
@@ -74,12 +75,14 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     // record every time the plane is not on the ground
     else if (!data.on_ground) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
-        const query = {};
-        query[currentTripKey] = data;
-        query.onGround = false;
+        const pushQuery = {};
+        const setQuery = {};
+        pushQuery[currentTripKey] = data;
+        setQuery.onGround = false;
         await this.update(
             planeId,
-            { $push: query }
+            { $push: pushQuery },
+            { $set: setQuery }
         );
         return this.calculateAvarageValues(planeId);
     }
@@ -87,20 +90,25 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
 
 planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     const currentTripIndex = await this.getCurrentTripIndexByPlaneId(planeId);
-    const tripDataQuery = await this.findByDefaultId(planeId);
-    const tripData = tripDataQuery.trips[currentTripIndex].tripData;
+    const plane = await this.findByDefaultId(planeId);
+
+    const tripData = plane.trips[currentTripIndex].tripData;
+    const firstSpotInTrip = tripData[0];
+    const lastSpotInTrip = tripData.slice(-1)[0];
     const tripDataLength = tripData.length;
+
     const velocitySum = tripData.reduce((accumulator, currentValue) => {
         return accumulator + Number.parseFloat(currentValue.velocity || 0);
     }, 0);
     const geoAltitudeSum = tripData.reduce((accumulator, currentValue) => {
         return accumulator + Number.parseFloat(currentValue.geo_altitude || 0);
     }, 0);
-
     const query = {};
     const currentTripKey = "trips." + currentTripIndex;
     query[currentTripKey + '.avarageVelocity'] = velocitySum / tripDataLength;
     query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
+    query[currentTripKey + '.flightTime'] = msToTime(
+        lastSpotInTrip.time_position - firstSpotInTrip.time_position);
 
     return this.update(
         planeId,
@@ -115,6 +123,17 @@ planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
     } catch (e) {
         return [{ message: 'The plain is on the ground' }];
     }
+}
+
+function msToTime(s) {
+    var ms = s % 1000;
+    s = (s - ms) / 1000;
+    var secs = s % 60;
+    s = (s - secs) / 60;
+    var mins = s % 60;
+    var hrs = (s - mins) / 60;
+
+    return hrs + ' hours ' + mins + ' min';
 }
 
 const planeStates = mongoose.model('planeStates', planeStatesSchema);

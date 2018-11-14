@@ -1,6 +1,6 @@
 "use strict"
 require('./config/config');
-const UPDATE_INTERVAL = 5;//mins
+const UPDATE_INTERVAL = 0.5;//mins
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('./db/mongoose');
@@ -136,6 +136,7 @@ authRouter.delete('/deleteIcao/:planeId', async (req, res, next) => {
         res.status(400).send("Plane was not found in users plain list");
     };
 })
+//TODO merge two endpoints in one
 //see the current plane info from users list
 authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
     const planeIdArray = await User.getIcaoList(req.user.username);
@@ -145,11 +146,22 @@ authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
         const { icao } = await PlaneStates.findByDefaultId(planeIdArray[i]._id);
         const currentPlaneState = await PlaneStates.getCurrentStateByPlaneId(planeIdArray[i]._id);
         const tripsData = await PlaneStates.getTripsData(planeIdArray[i]._id);
-        
-        planeData = { icao, tripsData,currentPlaneState };
+
+        planeData = { icao, tripsData, currentPlaneState };
         planesCurrentData.push(planeData);
     }
     res.send({ planesCurrentData });
+});
+
+authRouter.get('/getCurrentPlaneState/:id', async (req, res, next) => {
+    const planeId = req.params.id;
+    let planeData = {};
+    const { icao } = await PlaneStates.findByDefaultId(planeId);
+    const currentPlaneState = await PlaneStates.getCurrentStateByPlaneId(planeId);
+    const tripsData = await PlaneStates.getTripsData(planeId);
+
+    planeData = { icao, tripsData, currentPlaneState };
+    res.send([planeData]);
 });
 
 authRouter.get('/getPlaneInfo/:planeId', async (req, res, next) => {

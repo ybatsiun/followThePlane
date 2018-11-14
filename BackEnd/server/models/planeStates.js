@@ -21,9 +21,15 @@ planeStatesSchema.statics.getAllIds = function () {
     return this.find({}, { _id: 1 });
 
 }
-
-planeStatesSchema.statics.findByDefaultId = function (planeID) {
-    return this.findOne(planeID);
+/**
+ * @param {ObjectId|String} planeId
+ */
+planeStatesSchema.statics.findByDefaultId = function (planeId) {
+    if (typeof planeId == "object") {
+        return this.findOne(planeId);
+    } else {
+        return this.findOne({ _id: ObjectID(planeId) });
+    }
 }
 
 planeStatesSchema.statics.deleteByPlaneId = function (planeID) {
@@ -116,7 +122,7 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
 }
 
 planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
-    const plane = await this.findByDefaultId(planeId._id);
+    const plane = await this.findByDefaultId(planeId._id || planeId);
     try {
         return plane.trips[plane.currentTripIndex].tripData.slice(-1);
     } catch (e) {
@@ -125,7 +131,9 @@ planeStatesSchema.statics.getCurrentStateByPlaneId = async function (planeId) {
 }
 
 planeStatesSchema.statics.getTripsData = async function (planeId) {
-
+    if (typeof planeId !== 'object') {
+        planeId = ObjectID(planeId)
+    };
     const tripObj = await this.find(planeId, { trips: 1 });
     //delete tripRecordData to minimize object sent to client;
     for (let i = 0; i < tripObj[0].trips.length; i++) {

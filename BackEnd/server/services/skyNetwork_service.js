@@ -40,7 +40,7 @@ module.exports = {
         for (const planeId of planeStateList) {
             const { icao } = await PlaneStates.findByDefaultId(planeId);
             const states = await this.getStateByIcao(icao);
-            console.log('writing data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
+            console.log('data for ' + icao + ' at ' + dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"));
             await PlaneStates.writeDataByPlaneId(planeId, states);
         };
     }

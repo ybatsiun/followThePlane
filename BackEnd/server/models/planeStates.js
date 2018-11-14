@@ -48,7 +48,11 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
 
     const isCurrentTripContainsData = planeObj.trips[currentTripIndex] !== undefined;
     // don't record it 
-    if (!data) return
+    if (!data) {
+        console.log('no data');
+        return;
+    };
+
 
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
@@ -71,6 +75,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         q[`trips.${currentTripIndex}.startLocationObj`] = locations[1].results[0].locations;
         q.currentTripIndex = currentTripIndex + 1;
         q.onGround = true;
+        console.log('plane landed. currentTripIndex was increased');
 
         return this.update(
             { planeId },
@@ -82,6 +87,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const pushQuery = {};
         const setQuery = {};
+        data.recordedTime = new Date().toISOString();
         pushQuery[currentTripKey] = data;
         setQuery.onGround = false;
         await this.update(
@@ -89,6 +95,7 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
             { $push: pushQuery },
             { $set: setQuery }
         );
+        console.log('data was recorded');
         return this.calculateAvarageValues(planeId);
     }
 }
@@ -113,7 +120,7 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     query[currentTripKey + '.avarageVelocity'] = velocitySum / tripDataLength;
     query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
     query[currentTripKey + '.flightTime'] = msToTime(
-        lastSpotInTrip.last_contact - firstSpotInTrip.last_contact);
+        Date.parse(lastSpotInTrip.recordedTime) - Date.parse(firstSpotInTrip.recordedTime));
 
     return this.update(
         planeId,

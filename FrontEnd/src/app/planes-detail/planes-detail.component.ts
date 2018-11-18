@@ -25,20 +25,41 @@ export class PlanesDetailComponent implements OnInit {
       },
       flightTime: {
         title: 'Flight Time'
-      }
+      },
+      startLocationCountry: {
+        title: 'Travelled from'
+      },
+      finishLocationCountry: {
+        title: 'Travelled to'
+      },
     },
     editable: false,
     noDataMessage: 'there are no trips data for ' + this.icao,
     actions: {
-      edit: false, add: false, position: 'right', columnTitle: ''
+      edit: false, add: false, delete: false, position: 'right', columnTitle: ''
     }
   };
 
   ngOnInit() {
     this.id = this.route.snapshot.params.id;
+
     this.httpCLient.getCurrentPlaneStates(this.id).subscribe(data => {
+
       this.icao = data[0].icao;
-      this.planeState = data[0].tripsData
+      this.planeState = data[0].tripsData;
+
+      for (const trip of this.planeState) {
+
+        if (trip.hasOwnProperty('finishLocationObj') && trip.hasOwnProperty('startLocationObj')) {
+          trip.startLocationCountry = trip.startLocationObj[0].adminArea1;
+          trip.finishLocationCountry = trip.finishLocationObj[0].adminArea1;
+        } else {
+          trip.startLocationCountry = 'no data';
+          trip.finishLocationCountry = 'no data';
+        };
+
+      };
+
     });
   }
 }

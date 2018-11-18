@@ -153,7 +153,7 @@ authRouter.get('/getCurrentPlaneStates', async (req, res, next) => {
     res.send({ planesCurrentData });
 });
 
-authRouter.get('/getCurrentPlaneState/:id', async (req, res, next) => {
+authRouter.get('/getCurrentPlaneStates/:id', async (req, res, next) => {
     const planeId = req.params.id;
     let planeData = {};
     const { icao } = await PlaneStates.findByDefaultId(planeId);

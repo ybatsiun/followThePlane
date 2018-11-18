@@ -49,6 +49,6 @@ export class PlanesListComponent implements OnInit {
   }
 
   onUserRowSelect(event) {
-    this.router.navigateByUrl('/planeDetailView/' + event.data.id)
+    this.router.navigateByUrl('/planeDetailView/' + event.data._id)
   }
 }

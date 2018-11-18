@@ -7,7 +7,11 @@ const Trip = new mongoose.Schema({
     avarageGeoAltitude: { type: Number },
     finishLocationObj: { type: Object },
     startLocationObj: { type: Object },
-    flightTime: String
+    flightTime: String,
+    isCurrent: {
+        type: Boolean,
+        default: true
+    }
 });
 
 module.exports = Trip;

@@ -45,7 +45,6 @@ planeStatesSchema.statics.getTripsByPlaneId = async function (planeID) {
 planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
     const planeObj = await this.findByDefaultId(planeId);
     const { currentTripIndex } = planeObj;
-
     const isCurrentTripContainsData = planeObj.trips[currentTripIndex] !== undefined;
     // don't record it 
     if (!data) {
@@ -53,11 +52,10 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         return;
     };
 
-
     // plane landed, current trip, that contains some data is ended 
     // and current trip index should be incremented on one 
     if (data.on_ground && await isCurrentTripContainsData) {
-        const tripObj = await this.findOne({ planeId }, { trips: 1, _id: 0, currentTripIndex: 1 });
+        const tripObj = await this.findOne(planeId, { trips: 1, _id: 0, currentTripIndex: 1 });
         const { currentTripIndex } = tripObj;
         const { trips } = tripObj;
         const firstSpotInTrip = trips[currentTripIndex].tripData[0];
@@ -73,22 +71,22 @@ planeStatesSchema.statics.writeDataByPlaneId = async function (planeId, data) {
         const q = {};
         q[`trips.${currentTripIndex}.finishLocationObj`] = locations[0].results[0].locations;
         q[`trips.${currentTripIndex}.startLocationObj`] = locations[1].results[0].locations;
+        q[`trips.${currentTripIndex}.isCurrent`] = false;
         q.currentTripIndex = currentTripIndex + 1;
         q.onGround = true;
         console.log('plane landed. currentTripIndex was increased');
 
         return this.update(
-            { planeId },
+            planeId,
             { $set: q },
         );
     }
     // record every time the plane is not on the ground
     else if (!data.on_ground) {
-        const currentTripKey = "trips." + currentTripIndex + ".tripData";
         const pushQuery = {};
         const setQuery = {};
         data.recordedTime = new Date().toISOString();
-        pushQuery[currentTripKey] = data;
+        pushQuery["trips." + currentTripIndex + ".tripData"] = data;
         setQuery.onGround = false;
         await this.update(
             planeId,
@@ -121,6 +119,7 @@ planeStatesSchema.statics.calculateAvarageValues = async function (planeId) {
     query[currentTripKey + '.avarageGeoAltitude'] = geoAltitudeSum / tripDataLength;
     query[currentTripKey + '.flightTime'] = msToTime(
         Date.parse(lastSpotInTrip.recordedTime) - Date.parse(firstSpotInTrip.recordedTime));
+    query[currentTripKey + '.isCurrent'] = true;
 
     return this.update(
         planeId,

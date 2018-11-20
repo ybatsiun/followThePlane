@@ -92,18 +92,34 @@ authRouter.get('/icaoList', getAllStates, (req, res, next) => {
     res.send(availablePlanesList);
 });
 //can be added only from available planes
-authRouter.post('/addIcao/:icao', async (req, res, next) => {
-    const icao = req.params.icao;
-    const currentState = await skyNetwork_service.getStateByIcao(icao);
+authRouter.post('/addIcao', async (req, res, next) => {
     const user = new User(req.user);
-    if (!currentState) return res.status(400).send(`${icao} is not available anymore`)
-    user.addIcaoObj(
-        { icao, origin_country: currentState.origin_country }
-    ).then(() => {
-        res.send({ message: `${icao} was successfully added to your profile.` });
-    }).catch(e => {
-        res.status(400).send(e);
-    })
+    const { icaoList } = _.pick(req.body, ['icaoList']);
+    if (!icaoList) {
+        res.status(400).send('icao list is empty')
+    };
+
+    const addIcaoPromises = [];
+
+    for (const icao of icaoList) {
+
+        const currentState = await skyNetwork_service.getStateByIcao(icao);
+        if (!currentState) {
+            addIcaoPromises.push(`${icao} was not added as it is not available anymore`);
+        } else {
+            addIcaoPromises.push(user.addIcaoObj(
+                { icao, origin_country: currentState.origin_country }
+            ));
+        };
+
+    };
+
+    Promise.all(addIcaoPromises).then(messages => {
+        res.status(200).send(messages)
+    }).catch(err => {
+        res.status(400).send(err)
+    });
+
 });
 authRouter.get('/getMyIcaoList', async (req, res, next) => {
 

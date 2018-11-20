@@ -107,7 +107,7 @@ UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
     const userListPlane = await PlaneStates.findByDefaultId(planeIdInTheList);
     const userListPlaneIcao = userListPlane.icao;
 
-    if (userListPlaneIcao == newIcaoObj.icao) return Promise.reject(`${newIcaoObj.icao} already existis`);
+    if (userListPlaneIcao == newIcaoObj.icao) return `${newIcaoObj.icao} already exists`;
   }
 
   const planeStates = new PlaneStates();
@@ -115,9 +115,11 @@ UserSchema.methods.addIcaoObj = async function (newIcaoObj) {
   planeStates.icao = newIcaoObj.icao;
   const planeStatesId = await planeStates.save();
   user.planes.push(planeStatesId._id);
-  return user.save().catch(e => {
-    console.err('adding plane id: ', e);
-  });
+  return user.save()
+    .then(() => `${newIcaoObj.icao} was added successfuly`)
+    .catch(e => {
+      console.err('adding plane id: ', e);
+    });
 };
 
 UserSchema.methods.deletePlaneId = function (planeId) {

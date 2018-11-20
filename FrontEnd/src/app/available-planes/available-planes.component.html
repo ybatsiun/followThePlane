@@ -1,2 +1,6 @@
-<ng2-smart-table [settings]="settings" [source]="availablePlanes">
+<ng2-smart-table [settings]="settings" [source]="availablePlanes" (userRowSelect)="onUserRowSelect($event)">
 </ng2-smart-table>
+
+<br>
+
+<button (click)="addPlanes()">Add selected planes</button>

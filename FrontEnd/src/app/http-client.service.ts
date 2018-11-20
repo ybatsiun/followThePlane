@@ -20,7 +20,8 @@ export class HttpClientService {
     planesList: `${this.auth}/getMyIcaoList`,
     deleteIcao: `${this.auth}/deleteIcao`,
     getCurrentPlaneStates: `${this.auth}/getCurrentPlaneStates`,
-    getAvailablePlanes: `${this.auth}/icaoList`
+    getAvailablePlanes: `${this.auth}/icaoList`,
+    addPlanes: `${this.auth}/addIcao`
   };
 
   constructor(private http: HttpClient) { }
@@ -59,21 +60,28 @@ export class HttpClientService {
     return this.http.delete<any>(this.beHost + this.routes.deleteIcao + '/' + planeId).pipe(
       catchError(this.handleError<any>())
     )
-  }
+  };
 
   getCurrentPlaneStates(id): Observable<any> {
     return this.http.get<any>(this.beHost + this.routes.getCurrentPlaneStates + `/${id}`)
       .pipe(
         catchError(this.handleError<any>())
       )
-  }
+  };
 
   getAvailablePlanes(): Observable<any> {
     return this.http.get<any>(this.beHost + this.routes.getAvailablePlanes)
       .pipe(
         catchError(this.handleError<any>())
       )
-  }
+  };
+
+  addPlanes(icaoList): Observable<any> {
+    return this.http.post<any>(this.beHost + this.routes.addPlanes, { icaoList })
+      .pipe(
+        catchError(this.handleError<any>())
+      )
+  };
 
   private userInfoAction(userLoginInfo: any, route: string): Observable<any> {
     return this.http.post<UserLoginInfo>(this.beHost + route, {

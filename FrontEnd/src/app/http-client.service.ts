@@ -19,7 +19,8 @@ export class HttpClientService {
     currentUser: `${this.auth}/me`,
     planesList: `${this.auth}/getMyIcaoList`,
     deleteIcao: `${this.auth}/deleteIcao`,
-    getCurrentPlaneStates: `${this.auth}/getCurrentPlaneStates`
+    getCurrentPlaneStates: `${this.auth}/getCurrentPlaneStates`,
+    getAvailablePlanes: `${this.auth}/icaoList`
   };
 
   constructor(private http: HttpClient) { }
@@ -62,6 +63,13 @@ export class HttpClientService {
 
   getCurrentPlaneStates(id): Observable<any> {
     return this.http.get<any>(this.beHost + this.routes.getCurrentPlaneStates + `/${id}`)
+      .pipe(
+        catchError(this.handleError<any>())
+      )
+  }
+
+  getAvailablePlanes(): Observable<any> {
+    return this.http.get<any>(this.beHost + this.routes.getAvailablePlanes)
       .pipe(
         catchError(this.handleError<any>())
       )

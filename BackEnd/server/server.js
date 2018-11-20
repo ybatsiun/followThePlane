@@ -86,11 +86,10 @@ authRouter.delete('/logout', (req, res, next) => {
 
 authRouter.get('/icaoList', getAllStates, (req, res, next) => {
     const parsedData = res.data.states;
-    const icaoNumbersList = parsedData.reduce((accumulator, currentVal) => {
-        accumulator.push(currentVal[0]);
-        return accumulator;
-    }, []);
-    res.send(icaoNumbersList);
+    const availablePlanesList = parsedData.map(item => {
+        return { icao: item[0], origin_country: item[2] }
+    });
+    res.send(availablePlanesList);
 });
 //can be added only from available planes
 authRouter.post('/addIcao/:icao', async (req, res, next) => {
